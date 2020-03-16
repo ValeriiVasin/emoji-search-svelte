@@ -23,6 +23,7 @@
 
   const all = items.map(item => ({ item }));
 
+  $: filter = filter.replace(/\s+/g, "_");
   $: results = filter.trim().length > 0 ? fuse.search(filter) : all;
   $: window.location.hash = filter.trim();
 </script>
@@ -76,6 +77,7 @@
   }
 </style>
 
+<svelte:options immutable />
 <div class="app">
   <div class="filter">
     <input
@@ -88,7 +90,10 @@
     {#each results as item}
       <div class="emoji">{item.item.char}</div>
     {:else}
-      <h3>Nothing found</h3>
+      <div class="no-result">
+        Nothing found for the query
+        <b>{filter.trim()}</b>
+      </div>
     {/each}
   </div>
 
@@ -99,6 +104,13 @@
       target="_blank"
       rel="noopener">
       Github
+    </a>
+    <a
+      href="https://emoji.muan.co"
+      class="footer-link"
+      target="_blank"
+      rel="noopener">
+      Original Source
     </a>
     <a
       href="https://github.com/muan/emojilib"
