@@ -26,6 +26,14 @@
 
   new ClipboardJS(".emoji");
 
+  let currentEmoji = "";
+  let interval;
+  function emojiClick(emoji) {
+    currentEmoji = emoji;
+    clearInterval(interval);
+    setTimeout(() => (currentEmoji = ""), 500);
+  }
+
   $: filter = filter.replace(/\s+/g, "_");
   $: results = filter.trim().length > 0 ? fuse.search(filter) : all;
   $: window.location.hash = filter.trim();
@@ -44,7 +52,7 @@
 
   input {
     width: 300px;
-    padding: 4px 8px;
+    padding: 8px 16px;
   }
 
   .list {
@@ -83,9 +91,30 @@
   .footer-link {
     margin: 0 8px;
   }
+
+  .flash {
+    border-radius: 8px;
+    background-color: rgb(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 16px;
+    padding: 8px 16px;
+    font-size: 32px;
+  }
 </style>
 
 <svelte:options immutable />
+
+{#if currentEmoji}
+  <div class="flash">{currentEmoji} copied</div>
+{/if}
+
 <div class="app">
   <div class="filter">
     <input
@@ -99,7 +128,8 @@
       <div
         class="emoji"
         title="Copy to Clipboard"
-        data-clipboard-text={item.item.char}>
+        data-clipboard-text={item.item.char}
+        on:click={() => emojiClick(item.item.char)}>
         {item.item.char}
       </div>
     {:else}
