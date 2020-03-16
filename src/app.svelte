@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { lib } from "emojilib";
   import Fuse from "fuse.js";
+  import ClipboardJS from "clipboard";
 
   let searchRef;
   onMount(() => searchRef.focus());
@@ -22,6 +23,8 @@
   });
 
   const all = items.map(item => ({ item }));
+
+  new ClipboardJS(".emoji");
 
   $: filter = filter.replace(/\s+/g, "_");
   $: results = filter.trim().length > 0 ? fuse.search(filter) : all;
@@ -63,6 +66,11 @@
     cursor: pointer;
     font-size: 32px;
     padding: 8px;
+    border-radius: 4px;
+  }
+
+  .emoji:hover {
+    background-color: lightgray;
   }
 
   footer {
@@ -88,7 +96,12 @@
   </div>
   <div class="list">
     {#each results as item}
-      <div class="emoji">{item.item.char}</div>
+      <div
+        class="emoji"
+        title="Copy to Clipboard"
+        data-clipboard-text={item.item.char}>
+        {item.item.char}
+      </div>
     {:else}
       <div class="no-result">
         Nothing found for the query

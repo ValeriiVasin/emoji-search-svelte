@@ -17,6 +17,7 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "clipboard": "^2.0.6",
     "emojilib": "^2.4.0",
     "fuse.js": "^5.0.2-beta",
     "sirv-cli": "^0.4.4"
