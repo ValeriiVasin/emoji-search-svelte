@@ -1,5 +1,6 @@
 {
-  "name": "svelte-app",
+  "name": "emoji-search-svelte",
+  "private": true,
   "version": "1.0.0",
   "scripts": {
     "build": "rollup -c",

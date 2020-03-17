@@ -142,7 +142,7 @@
 
   <footer>
     <a
-      href="https://github.com/valeriivasin/emoji-svelte"
+      href="https://github.com/valeriivasin/emoji-search-svelte"
       class="footer-link"
       target="_blank"
       rel="noopener">
