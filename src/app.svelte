@@ -45,13 +45,16 @@
     padding: 8px 16px;
   }
 
-  .list {
-    display: grid;
-    grid-template-columns: repeat(7, 48px);
+  .content {
     margin-top: 16px;
     padding: 8px 0;
     border-bottom: 1px solid gray;
     border-top: 1px solid gray;
+  }
+
+  .emojis {
+    display: grid;
+    grid-template-columns: repeat(7, 48px);
   }
 
   .emoji {
@@ -108,7 +111,7 @@
     .app {
       width: 960px;
     }
-    .list {
+    .emojis {
       grid-template-columns: repeat(20, 48px);
     }
   }
@@ -128,17 +131,19 @@
       type="search"
       placeholder="search for emoji by the keyword" />
   </div>
-  <div class="list">
-    {#each emojis as emoji (emoji.char)}
-      <div
-        class="emoji"
-        class:is-hidden={!visible.has(emoji.char)}
-        title="Copy to Clipboard"
-        data-clipboard-text={emoji.char}
-        on:click={() => emojiClick(emoji.char)}>
-        {emoji.char}
-      </div>
-    {/each}
+  <div class="content">
+    <div class="emojis">
+      {#each emojis as emoji (emoji.char)}
+        <div
+          class="emoji"
+          class:is-hidden={!visible.has(emoji.char)}
+          title="Copy to Clipboard"
+          data-clipboard-text={emoji.char}
+          on:click={() => emojiClick(emoji.char)}>
+          {emoji.char}
+        </div>
+      {/each}
+    </div>
 
     {#if visible.size === 0}
       <div class="no-result">
