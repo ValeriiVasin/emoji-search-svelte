@@ -1,30 +1,19 @@
 <script>
   import { onMount } from "svelte";
-  import { lib } from "emojilib";
-  import Fuse from "fuse.js";
   import ClipboardJS from "clipboard";
 
+  import { emojis, createFilteredSet } from "./lib";
+
   let searchRef;
-  onMount(() => searchRef.focus());
-
-  const items = [];
-  for (let [key, item] of Object.entries(lib)) {
-    items.push({ ...item, name: key });
-  }
-
-  let filter = window.location.hash.slice(1);
-  const fuse = new Fuse(items, {
-    shouldSort: true,
-    threshold: 0.2,
-    location: 0,
-    distance: 100,
-    minMatchCharLength: 0,
-    keys: ["name", "category", "keywords"]
+  onMount(() => {
+    searchRef.focus();
+    const clipboard = new ClipboardJS(".emoji");
+    return () => {
+      clipboard.destroy();
+    };
   });
 
-  const all = items.map(item => ({ item }));
-
-  new ClipboardJS(".emoji");
+  let filter = window.location.hash.slice(1);
 
   let currentEmoji = "";
   let interval;
@@ -35,8 +24,8 @@
   }
 
   $: filter = filter.replace(/\s+/g, "_");
-  $: results = filter.trim().length > 0 ? fuse.search(filter) : all;
   $: window.location.hash = filter.trim();
+  $: visible = createFilteredSet(filter);
 </script>
 
 <style>
@@ -107,6 +96,14 @@
     padding: 8px 16px;
     font-size: 32px;
   }
+
+  .is-hidden {
+    display: none;
+  }
+
+  .no-result {
+    font-size: 32px;
+  }
 </style>
 
 <svelte:options immutable />
@@ -124,20 +121,23 @@
       placeholder="search for emoji by the keyword" />
   </div>
   <div class="list">
-    {#each results as item}
+    {#each emojis as emoji (emoji.char)}
       <div
         class="emoji"
+        class:is-hidden={!visible.has(emoji.char)}
         title="Copy to Clipboard"
-        data-clipboard-text={item.item.char}
-        on:click={() => emojiClick(item.item.char)}>
-        {item.item.char}
-      </div>
-    {:else}
-      <div class="no-result">
-        Nothing found for the query
-        <b>{filter.trim()}</b>
+        data-clipboard-text={emoji.char}
+        on:click={() => emojiClick(emoji.char)}>
+        {emoji.char}
       </div>
     {/each}
+
+    {#if visible.size === 0}
+      <div class="no-result">
+        Nothing found for the query
+        <b>"{filter.trim()}"</b>
+      </div>
+    {/if}
   </div>
 
   <footer>
