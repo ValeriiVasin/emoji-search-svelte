@@ -2,6 +2,10 @@
   "name": "emoji-search-svelte",
   "private": true,
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ValeriiVasin/emoji-search-svelte"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
