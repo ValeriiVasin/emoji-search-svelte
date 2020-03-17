@@ -30,13 +30,14 @@
 
 <style>
   .app {
-    width: 960px;
+    width: 336px;
     margin: 0 auto;
   }
 
   .filter {
     display: flex;
     justify-content: center;
+    align-items: center;
   }
 
   input {
@@ -45,9 +46,8 @@
   }
 
   .list {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: repeat(7, 48px);
     margin-top: 16px;
     padding: 8px 0;
     border-bottom: 1px solid gray;
@@ -55,14 +55,13 @@
   }
 
   .emoji {
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     font-size: 32px;
-    padding: 8px;
     border-radius: 4px;
   }
 
@@ -103,6 +102,15 @@
 
   .no-result {
     font-size: 32px;
+  }
+
+  @media only screen and (min-width: 600px) {
+    .app {
+      width: 960px;
+    }
+    .list {
+      grid-template-columns: repeat(20, 48px);
+    }
   }
 </style>
 
