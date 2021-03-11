@@ -22,7 +22,7 @@
     "svelte": "^3.29.0"
   },
   "dependencies": {
-    "clipboard": "^2.0.6",
+    "clipboard": "^2.0.8",
     "emojilib": "^2.4.0",
     "sirv-cli": "^1.0.8"
   }
