@@ -1,13 +1,14 @@
-import { lib } from 'emojilib';
+import lib from 'emojilib';
+
+console.log(lib);
 
 function prepare(lib) {
   const emojis = [];
 
-  for (let [name, item] of Object.entries(lib)) {
+  for (let [char, keywords] of Object.entries(lib)) {
     emojis.push({
-      name,
-      char: item.char,
-      keywords: `${name}/${item.keywords.join('/')}`
+      char,
+      keywords: keywords.join('/'),
     });
   }
 
@@ -28,8 +29,8 @@ function findVisible(emojis, text) {
   return set;
 }
 
-const ALL_SET = new Set(emojis.map(emoji => emoji.char));
-export const createFilteredSet = text => {
+const ALL_SET = new Set(emojis.map((emoji) => emoji.char));
+export const createFilteredSet = (text) => {
   const trimmed = text.trim();
 
   if (!trimmed) {
