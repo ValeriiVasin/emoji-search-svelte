@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "clipboard": "^2.0.8",
-    "emojilib": "^2.4.0",
+    "emojilib": "^3.0.4",
     "sirv-cli": "^1.0.14"
   }
 }
