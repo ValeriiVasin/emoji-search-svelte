@@ -1,8 +1,7 @@
 <script>
-  import { onMount } from "svelte";
   import ClipboardJS from "clipboard";
-
-  import { emojis, createFilteredSet } from "./lib";
+  import { onMount } from "svelte";
+  import { createFilteredSet,emojis } from "./lib";
 
   let searchRef;
   onMount(() => {
