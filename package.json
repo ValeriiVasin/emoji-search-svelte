@@ -28,7 +28,7 @@
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "clipboard": "^2.0.8",
+    "clipboard": "^2.0.9",
     "emojilib": "^3.0.4",
     "sirv-cli": "^1.0.14"
   }
