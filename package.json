@@ -11,7 +11,7 @@
     "dev": "rollup -c -w",
     "start": "sirv public",
     "test": "cypress run",
-    "ci": "start-server-and-test start http://localhost:5000 test"
+    "ci": "start-server-and-test start http://localhost:8080 test"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.3",
@@ -30,6 +30,6 @@
   "dependencies": {
     "clipboard": "^2.0.10",
     "emojilib": "^3.0.6",
-    "sirv-cli": "^1.0.14"
+    "sirv-cli": "^2.0.2"
   }
 }

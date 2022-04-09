@@ -1,6 +1,6 @@
 describe('emoji app', () => {
   beforeEach(() => {
-    cy.visit('localhost:5000');
+    cy.visit('localhost:8080');
   });
 
   it('search box is focused after the page load', () => {
