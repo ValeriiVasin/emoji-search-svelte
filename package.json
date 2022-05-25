@@ -25,7 +25,7 @@
     "rollup-plugin-terser": "^7.0.2",
     "start-server-and-test": "^1.14.0",
     "svelte": "^3.48.0",
-    "typescript": "^4.6.4"
+    "typescript": "^4.7.2"
   },
   "dependencies": {
     "clipboard": "^2.0.11",
