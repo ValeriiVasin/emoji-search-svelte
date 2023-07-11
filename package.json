@@ -14,7 +14,7 @@
     "ci": "start-server-and-test start http://localhost:8080 test"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^23.0.5",
+    "@rollup/plugin-commonjs": "^25.0.2",
     "@rollup/plugin-json": "^5.0.2",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "cypress": "^12.17.1",
