@@ -17,7 +17,7 @@
     "@rollup/plugin-commonjs": "^23.0.5",
     "@rollup/plugin-json": "^5.0.2",
     "@rollup/plugin-node-resolve": "^15.3.0",
-    "cypress": "^15.16.0",
+    "cypress": "^15.17.0",
     "rollup": "^3.30.0",
     "rollup-plugin-css-only": "^4.5.5",
     "rollup-plugin-livereload": "^2.0.5",
