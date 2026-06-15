@@ -1,5 +1,8 @@
 /node_modules/
-/public/build/
+/build/
+/.svelte-kit/
 /cypress/screenshots/*
 /cypress/videos/*
+/test-results/
+/playwright-report/
 .DS_Store
