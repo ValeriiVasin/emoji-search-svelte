@@ -2,34 +2,29 @@
   "name": "emoji-search-svelte",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/ValeriiVasin/emoji-search-svelte"
   },
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "start": "sirv public",
-    "test": "cypress run",
-    "ci": "start-server-and-test start http://localhost:8080 test"
+    "build": "vite build",
+    "dev": "vite dev",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync || echo ''",
+    "test": "playwright test",
+    "ci": "playwright test"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^23.0.5",
-    "@rollup/plugin-json": "^5.0.2",
-    "@rollup/plugin-node-resolve": "^15.3.0",
-    "cypress": "^15.17.0",
-    "rollup": "^3.30.0",
-    "rollup-plugin-css-only": "^4.5.5",
-    "rollup-plugin-livereload": "^2.0.5",
-    "rollup-plugin-svelte": "^7.2.3",
-    "rollup-plugin-terser": "^7.0.2",
-    "start-server-and-test": "^2.1.5",
+    "@playwright/test": "^1.54.1",
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.65.1",
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "svelte": "^5.56.3",
-    "typescript": "^4.9.5"
+    "typescript": "^6.0.3",
+    "vite": "^7.1.2"
   },
   "dependencies": {
-    "clipboard": "^2.0.11",
-    "emojilib": "^3.0.12",
-    "sirv-cli": "^2.0.2"
+    "emojilib": "^4.0.3"
   }
 }
