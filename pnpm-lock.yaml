@@ -17,13 +17,13 @@ importers:
         version: 1.64.1
       '@sveltejs/adapter-static':
         specifier: ^3.0.10
-        version: 3.0.10(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.5(terser@5.48.0)))
+        version: 3.0.10(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.7(terser@5.48.0)))
       '@sveltejs/kit':
         specifier: ^2.70.3
-        version: 2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.5(terser@5.48.0))
+        version: 2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.7(terser@5.48.0))
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.1
-        version: 6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0))
+        version: 6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0))
       svelte:
         specifier: ^5.57.2
         version: 5.57.2
@@ -31,8 +31,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       vite:
-        specifier: ^7.1.2
-        version: 7.3.5(terser@5.48.0)
+        specifier: ^7.3.7
+        version: 7.3.7(terser@5.48.0)
 
 packages:
 
@@ -472,11 +472,6 @@ packages:
       picomatch:
         optional: true
 
-  fsevents@2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    os: [darwin]
-
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -574,8 +569,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  vite@7.3.5:
-    resolution: {integrity: sha512-KuOaNhcnGFN2zIPGA7wRmzF+lJA1sea7rHq17aiJ++9lzY1WWG6Jpwqwe1KNbRVPIqHmr8GLYx7jbrQcN/7/ww==}
+  vite@7.3.7:
+    resolution: {integrity: sha512-AHEzTORMbi7/7aXp7w7KZ5+DCUdSeLsJz0grY8xHpc9DHdYb0vQu6DqJfm2tOw3gDExNgPgnJTXxM6syYFHaCA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -819,15 +814,15 @@ snapshots:
     dependencies:
       acorn: 8.18.0
 
-  '@sveltejs/adapter-static@3.0.10(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.5(terser@5.48.0)))':
+  '@sveltejs/adapter-static@3.0.10(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.7(terser@5.48.0)))':
     dependencies:
-      '@sveltejs/kit': 2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.5(terser@5.48.0))
+      '@sveltejs/kit': 2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.7(terser@5.48.0))
 
-  '@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.5(terser@5.48.0))':
+  '@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@7.3.7(terser@5.48.0))':
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@sveltejs/acorn-typescript': 1.0.13(acorn@8.18.0)
-      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0))
+      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0))
       '@types/cookie': 0.6.0
       acorn: 8.18.0
       cookie: 0.6.0
@@ -839,26 +834,26 @@ snapshots:
       set-cookie-parser: 3.1.2
       sirv: 3.0.2
       svelte: 5.57.2
-      vite: 7.3.5(terser@5.48.0)
+      vite: 7.3.7(terser@5.48.0)
     optionalDependencies:
       typescript: 6.0.3
 
-  '@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0)))(svelte@5.57.2)(vite@7.3.5(terser@5.48.0))':
+  '@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0)))(svelte@5.57.2)(vite@7.3.7(terser@5.48.0))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0))
+      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0))
       obug: 2.1.3
       svelte: 5.57.2
-      vite: 7.3.5(terser@5.48.0)
+      vite: 7.3.7(terser@5.48.0)
 
-  '@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0))':
+  '@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.5(terser@5.48.0)))(svelte@5.57.2)(vite@7.3.5(terser@5.48.0))
+      '@sveltejs/vite-plugin-svelte-inspector': 5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.57.2)(vite@7.3.7(terser@5.48.0)))(svelte@5.57.2)(vite@7.3.7(terser@5.48.0))
       deepmerge: 4.3.1
       magic-string: 0.30.21
       obug: 2.1.3
       svelte: 5.57.2
-      vite: 7.3.5(terser@5.48.0)
-      vitefu: 1.1.3(vite@7.3.5(terser@5.48.0))
+      vite: 7.3.7(terser@5.48.0)
+      vitefu: 1.1.3(vite@7.3.7(terser@5.48.0))
 
   '@types/cookie@0.6.0': {}
 
@@ -924,9 +919,6 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
-
-  fsevents@2.3.2:
-    optional: true
 
   fsevents@2.3.3:
     optional: true
@@ -994,7 +986,7 @@ snapshots:
       '@rollup/rollup-win32-ia32-msvc': 4.62.0
       '@rollup/rollup-win32-x64-gnu': 4.62.0
       '@rollup/rollup-win32-x64-msvc': 4.62.0
-      fsevents: 2.3.2
+      fsevents: 2.3.3
 
   set-cookie-parser@3.1.2: {}
 
@@ -1052,7 +1044,7 @@ snapshots:
 
   typescript@6.0.3: {}
 
-  vite@7.3.5(terser@5.48.0):
+  vite@7.3.7(terser@5.48.0):
     dependencies:
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.4)
@@ -1064,8 +1056,8 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.48.0
 
-  vitefu@1.1.3(vite@7.3.5(terser@5.48.0)):
+  vitefu@1.1.3(vite@7.3.7(terser@5.48.0)):
     optionalDependencies:
-      vite: 7.3.5(terser@5.48.0)
+      vite: 7.3.7(terser@5.48.0)
 
   zimmerframe@1.1.4: {}
