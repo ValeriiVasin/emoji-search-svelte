@@ -9,6 +9,9 @@
   let catalog = $state.raw(null);
   let loadFailed = $state(false);
   let searchRef;
+  let resultsRef;
+  let pageSize = $state(PAGE_SIZE);
+  let viewportHeight = $state(null);
   let copied = $state('');
   let copyFailed = $state(false);
   let copyTimer;
@@ -20,6 +23,9 @@
   );
   const group = $derived(
     initial.groups.indexOf(visibleUrl?.searchParams.get('group')),
+  );
+  const browsing = $derived(
+    visibleUrl?.searchParams.get('browse') === '1' || group >= 0,
   );
   const requestedPage = $derived(
     Math.max(
@@ -34,7 +40,7 @@
     catalog !== null || (!query && group < 0 && requestedPage === 1),
   );
   const total = $derived(catalog ? matches.length : initial.total);
-  const pages = $derived(Math.max(1, Math.ceil(total / PAGE_SIZE)));
+  const pages = $derived(Math.max(1, Math.ceil(total / pageSize)));
   const currentPage = $derived(Math.min(requestedPage, pages));
   $effect(() => {
     const urlQuery = query;
@@ -46,14 +52,20 @@
     if (query || group >= 0 || requestedPage > 1) void loadCatalog();
   });
   const visible = $derived(
-    matches.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    matches.slice((currentPage - 1) * pageSize, currentPage * pageSize),
   );
 
-  function href(nextGroup = group, nextPage = 1, nextQuery = query) {
+  function href(
+    nextGroup = group,
+    nextPage = 1,
+    nextQuery = query,
+    nextBrowsing = browsing,
+  ) {
     const params = new URLSearchParams();
     if (nextQuery) params.set('q', nextQuery);
     if (nextGroup >= 0) params.set('group', initial.groups[nextGroup]);
     if (nextPage > 1) params.set('page', String(nextPage));
+    if (nextBrowsing) params.set('browse', '1');
     return `/${params.size ? `?${params}` : ''}`;
   }
 
@@ -100,11 +112,32 @@
   }
 
   onMount(() => {
+    const updateViewport = () => {
+      viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    };
+    const observer = new ResizeObserver(([entry]) => {
+      const style = getComputedStyle(resultsRef);
+      const columns = Number(style.getPropertyValue('--columns'));
+      const cell = Number.parseFloat(style.getPropertyValue('--cell-height'));
+      const gap = Number.parseFloat(style.getPropertyValue('--gap'));
+      const rows = Math.max(
+        1,
+        Math.floor((entry.contentRect.height + gap) / (cell + gap)),
+      );
+      pageSize = Math.min(PAGE_SIZE, columns * rows);
+    });
+    updateViewport();
+    observer.observe(resultsRef);
+    window.visualViewport?.addEventListener('resize', updateViewport);
+    window.addEventListener('resize', updateViewport);
     const preload = setTimeout(() => {
       void loadCatalog();
     }, 1200);
     searchRef.focus({ preventScroll: true });
     return () => {
+      observer.disconnect();
+      window.visualViewport?.removeEventListener('resize', updateViewport);
+      window.removeEventListener('resize', updateViewport);
       clearTimeout(preload);
       clearTimeout(copyTimer);
     };
@@ -129,7 +162,10 @@
   />
 </svelte:head>
 
-<div class="shell">
+<div
+  class="shell"
+  style:height={viewportHeight ? `${viewportHeight}px` : undefined}
+>
   <main>
     <h1 class="sr-only">Emoji Search</h1>
     <section class="browser" aria-label="Emoji search">
@@ -164,26 +200,6 @@
             >{/if}
         </div>
       </div>
-      <nav class="categories" aria-label="Emoji categories">
-        <a href={href(-1)} aria-current={group < 0 ? 'page' : undefined}
-          >All emoji</a
-        >
-        {#each initial.groups as name, index}<a
-            href={href(index)}
-            aria-current={group === index ? 'page' : undefined}
-            >{[
-              'Smileys',
-              'People',
-              'Nature',
-              'Food',
-              'Travel',
-              'Activities',
-              'Objects',
-              'Symbols',
-              'Flags',
-            ][index]}</a
-          >{/each}
-      </nav>
       <div class="results-heading">
         <h2 class="sr-only">
           {query
@@ -192,7 +208,14 @@
               ? initial.groups[group]
               : 'All emoji'}
         </h2>
-        <span>{ready ? total.toLocaleString('en') : '…'} emoji</span>
+        <a
+          class="browse-toggle"
+          href={href(-1, 1, query, !browsing)}
+          aria-expanded={browsing}
+          aria-controls="categories"
+          >{browsing ? 'Hide categories' : 'Browse categories'}
+          <span aria-hidden="true">{browsing ? '⌃' : '⌄'}</span></a
+        >
         <span class="byline"
           >made with <span class="heart" role="img" aria-label="love">♥</span>
           in Berlin
@@ -213,7 +236,29 @@
           </svg>
         </span>
       </div>
-      <div class="results" aria-busy={!ready}>
+      {#if browsing}
+        <nav id="categories" class="categories" aria-label="Emoji categories">
+          <a href={href(-1)} aria-current={group < 0 ? 'page' : undefined}
+            >All emoji</a
+          >
+          {#each initial.groups as name, index}<a
+              href={href(index)}
+              aria-current={group === index ? 'page' : undefined}
+              >{[
+                'Smileys',
+                'People',
+                'Nature',
+                'Food',
+                'Travel',
+                'Activities',
+                'Objects',
+                'Symbols',
+                'Flags',
+              ][index]}</a
+            >{/each}
+        </nav>
+      {/if}
+      <div class="results" bind:this={resultsRef} aria-busy={!ready}>
         {#if loadFailed}
           <div class="empty">
             <h3>Couldn’t load the collection.</h3>
@@ -244,7 +289,7 @@
           </div>
         {/if}
       </div>
-      {#if total > PAGE_SIZE && ready}
+      {#if total > pageSize && ready}
         <nav class="pagination" aria-label="Results pages">
           {#if currentPage > 1}<a rel="prev" href={href(group, currentPage - 1)}
               >← Previous</a

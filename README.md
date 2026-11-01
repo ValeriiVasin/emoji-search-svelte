@@ -20,7 +20,7 @@ Run browser tests against the production build with `pnpm run build && pnpm test
 
 ## Emoji data and rendering
 
-The first screen is prerendered with 72 emoji. The full catalog loads separately after the first screen or when a search needs it. Search, category and pagination are reflected in shareable URLs; typing replaces the current history entry. Themes follow the system setting.
+The first screen prerenders up to 72 emoji. The interactive page sizes its result grid to the available viewport so pagination stays on screen, including smaller mobile windows. Categories are hidden by default behind Browse categories; exploration mode is preserved in the URL. The full catalog loads separately after the first screen or when a search needs it. Search, category and pagination are reflected in shareable URLs; typing replaces the current history entry. Themes follow the system setting.
 
 The committed catalog combines [Unicode Emoji 18.0](https://www.unicode.org/Public/18.0.0/emoji/emoji-test.txt) with the latest emojilib keywords (currently 4.0.3). Update deliberately with `pnpm update emojilib --latest && pnpm run update:emojis`, inspect generated changes, then rebuild and test. Data generation needs network access; normal builds use committed data. emojilib is a build-time dependency and is not shipped to browsers.
 

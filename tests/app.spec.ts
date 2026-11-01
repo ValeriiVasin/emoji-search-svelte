@@ -9,6 +9,9 @@ test.describe('emoji search', () => {
   test('keeps the first screen small and filters immediately', async ({
     page,
   }) => {
+    await expect(
+      page.getByRole('navigation', { name: 'Emoji categories' }),
+    ).toHaveCount(0);
     await expect(page.locator('[data-emoji]')).toHaveCount(72);
     await page.getByRole('searchbox').fill('poo');
     await expect(page).toHaveURL('/?q=poo');
@@ -22,10 +25,11 @@ test.describe('emoji search', () => {
   }) => {
     await page.getByRole('searchbox').fill('smile');
     await expect(page).toHaveURL('/?q=smile');
+    await page.getByRole('link', { name: 'Browse categories' }).click();
     await page.getByRole('link', { name: 'People', exact: true }).click();
     await expect(page).toHaveURL(/group=People/);
     await page.goBack();
-    await expect(page).toHaveURL('/?q=smile');
+    await expect(page).toHaveURL('/?q=smile&browse=1');
     await page.reload();
     await expect(page.getByRole('searchbox')).toHaveValue('smile');
     await page.goForward();
@@ -40,7 +44,7 @@ test.describe('emoji search', () => {
     await page.getByRole('searchbox').pressSequentially('s');
     await expect(page).toHaveURL(/q=smiles/);
     await page.goBack();
-    await expect(page).toHaveURL('/?q=smile');
+    await expect(page).toHaveURL('/?q=smile&browse=1');
   });
 
   test('copies the actual emoji and reports clipboard errors honestly', async ({
@@ -113,6 +117,7 @@ test.describe('emoji search', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 320, height: 740 });
+    await page.getByRole('link', { name: 'Browse categories' }).click();
     const categories = page.getByRole('navigation', {
       name: 'Emoji categories',
     });
@@ -148,13 +153,46 @@ test.describe('emoji search', () => {
     await expect(page.locator('.no-result')).toBeVisible();
     await expect(page.locator('[data-emoji]')).toHaveCount(0);
     await page.getByRole('button', { name: 'Clear search' }).click();
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/?browse=1');
     await expect(page.locator('[data-emoji="😀"]')).toBeVisible();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollHeight <= innerHeight,
+      ),
+    ).toBe(true);
+    const pagination = await page
+      .getByRole('navigation', { name: 'Results pages' })
+      .boundingBox();
+    expect(pagination.y + pagination.height).toBeLessThanOrEqual(740);
+    await page.getByRole('link', { name: 'Hide categories' }).click();
+    await expect(
+      page.getByRole('navigation', { name: 'Emoji categories' }),
+    ).toHaveCount(0);
+    await page.setViewportSize({ width: 320, height: 400 });
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => document.documentElement.scrollHeight <= innerHeight,
+        ),
+      )
+      .toBe(true);
+    await expect
+      .poll(() =>
+        page.locator('.results').evaluate((results) => {
+          const last = results.querySelector('[data-emoji]:last-child');
+          return (
+            last &&
+            last.getBoundingClientRect().bottom <=
+              results.getBoundingClientRect().bottom
+          );
+        }),
+      )
+      .toBe(true);
     const size = await page.locator('[data-emoji]').first().boundingBox();
     expect(size.width).toBeGreaterThanOrEqual(44);
     expect(size.height).toBeGreaterThanOrEqual(44);
