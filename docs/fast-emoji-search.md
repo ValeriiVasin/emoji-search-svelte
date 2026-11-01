@@ -20,6 +20,8 @@ Renderer comparison before the final UI simplification: Node 26.7.0; production 
 | Median input handler | 2.4 ms | 0.2 ms |
 | p95 to two animation frames, final pair | 100.1 ms | 34.4 ms |
 
-Initial resources total approximately **43.5 KB gzip** (HTML, CSS and JavaScript combined, computed from response bodies). The deferred catalog adds approximately **77 KB gzip**; it is not needed to render the first screen. Compression sizes are estimates for hosting; local Vite preview serves uncompressed resources.
+Initial resources total approximately **44.0 KB gzip** (HTML, CSS and JavaScript combined, computed from response bodies). The deferred catalog adds approximately **77 KB gzip**; it is not needed to render the first screen. Compression sizes are estimates for hosting; local Vite preview serves uncompressed resources.
 
-All seven production Playwright tests pass. Additional browser QA found no page errors at desktop/light or touch/mobile/dark (390×844, DPR 2); the mobile page width matched the viewport and focused search immediately on load. The first emoji row starts at 150 px on mobile; tests enforce a maximum of 200 px at 320 px viewport width. The standard first screen renders with JavaScript disabled. Unicode 18 additions remain searchable; familiar earlier glyphs lead the default collection to reduce missing-glyph boxes on older systems.
+All seven production Playwright tests pass. Additional browser QA found no page errors at desktop/light or touch/mobile/dark (390×844, DPR 2); the mobile page width matched the viewport and focused search immediately on load. The first emoji row starts at 153 px on mobile; tests enforce a maximum of 200 px at 320 px viewport width. The standard first screen renders with JavaScript disabled. Unicode 18 additions remain searchable; familiar earlier glyphs lead the default collection to reduce missing-glyph boxes on older systems.
+
+The compact Berlin signature shares the results metadata row. Final touch/mobile/dark QA (390×844) shows 66 complete emoji buttons without scrolling, focused search, no horizontal overflow and no page errors.
