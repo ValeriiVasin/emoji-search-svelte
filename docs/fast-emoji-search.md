@@ -61,3 +61,5 @@ Actual clipboard contents and continuous typing are verified in the Chromium tou
 Problem: the small Browse/Hide link and font-rendered arrows were hard to recognize as one disclosure control. The underline-based category strip looked like another primary navigation bar.
 
 Outcome: keep exploration secondary while making the entry and selected category legible in both themes at 320px. Use a constant Categories label in a compact outlined control, a single SVG chevron that rotates with aria-expanded, and quiet rounded category selections. Keep the 44px hit areas and existing row heights, shareable browse/group URLs, real links, focus preservation and closed-by-default behavior. No mode switch, overlay, new dependency or animated layout is needed. Existing navigation, theme and mobile geometry checks are sufficient; update their label selectors without adding tests.
+
+Production startup: keep JavaScript-only launcher/copy actions disabled until hydration connects their handlers. A delayed-entry-script regression protects the first tap from being lost; the static emoji preview remains visible.

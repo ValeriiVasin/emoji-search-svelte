@@ -499,3 +499,42 @@ test('keeps mobile top search stable after blur and repeated viewport panning', 
     await context.close();
   }
 });
+
+test('enables mobile actions only after hydration connects their handlers', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 700 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  const page = await context.newPage();
+  let release;
+  const pending = new Promise((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/_app/immutable/entry/*.js', async (route) => {
+    await pending;
+    await route.continue();
+  });
+  try {
+    await page.goto('http://127.0.0.1:4173/', {
+      waitUntil: 'domcontentloaded',
+    });
+    const launcher = page.getByRole('button', {
+      name: 'Open search',
+      exact: true,
+    });
+    await expect(launcher).toBeVisible();
+    await expect(launcher).toBeDisabled();
+    await expect(page.locator('[data-emoji]').first()).toBeDisabled();
+    release();
+    await expect(launcher).toBeEnabled();
+    await expect(page.locator('[data-emoji]').first()).toBeEnabled();
+    await launcher.tap();
+    await expect(page.getByRole('searchbox')).toBeFocused();
+  } finally {
+    release();
+    await context.close();
+  }
+});
