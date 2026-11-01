@@ -113,6 +113,27 @@ test.describe('emoji search', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 320, height: 740 });
+    const categories = page.getByRole('navigation', {
+      name: 'Emoji categories',
+    });
+    expect(
+      await categories.evaluate((nav) => nav.scrollWidth <= nav.clientWidth),
+    ).toBe(true);
+    expect(
+      await categories.getByRole('link').evaluateAll((links) =>
+        links.every((link) => {
+          const box = link.getBoundingClientRect();
+          const hit = document.elementFromPoint(
+            box.x + box.width / 2,
+            box.y + box.height / 2,
+          );
+          return (
+            box.x >= 0 && box.right <= innerWidth && hit?.closest('a') === link
+          );
+        }),
+      ),
+    ).toBe(true);
+
     expect((await page.getByRole('searchbox').boundingBox()).y).toBeLessThan(
       24,
     );
