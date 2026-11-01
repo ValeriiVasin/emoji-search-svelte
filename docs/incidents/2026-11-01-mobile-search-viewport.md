@@ -1,6 +1,6 @@
 # Mobile search moves away from the keyboard
 
-Date: 2026-11-01. Status: local mitigation, pending physical iPhone acceptance. Scope: follow-up [PR #944](https://github.com/ValeriiVasin/emoji-search-svelte/pull/944); no public deployment.
+Date: 2026-11-01. Status: locally verified; user approved production release on 2026-11-01. Scope: follow-up [PR #944](https://github.com/ValeriiVasin/emoji-search-svelte/pull/944); no public deployment.
 
 ## Evidence and cause
 
@@ -18,4 +18,4 @@ The stronger feedback test also exposed pointerdown cancellation suppressing Web
 
 ## Verification and remaining work
 
-Production checks cover focus, clipboard, mobile layout, query preservation and viewport geometry. Chromium and WebKit run the repeated-focus regression with simulated viewport events. This cannot establish how a physical iPhone keyboard animates; manual acceptance remains required before merge or deployment.
+Production checks cover focus, clipboard, mobile layout, query preservation and viewport geometry. Chromium and WebKit run the repeated-focus regression with simulated viewport events. This cannot establish how a physical iPhone keyboard animates. The user accepted the local version and authorized production release; native keyboard animation remains a bounded test limitation.
