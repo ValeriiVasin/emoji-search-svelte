@@ -287,17 +287,9 @@
           <button
             type="button"
             class="close-search"
-            aria-label="Close search"
-            onclick={closeSearch}
+            title="Close search"
+            onclick={closeSearch}>Done</button
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg
-            >
-          </button>
         </div>
         <button
           type="button"

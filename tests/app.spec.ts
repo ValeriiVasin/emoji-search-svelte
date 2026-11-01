@@ -317,7 +317,7 @@ test('mobile search opens only on a tap and keeps its query after collapsing', a
     await expect(input).toHaveCount(0);
     await launcher.tap();
     await expect(input).toBeFocused();
-    await page.getByRole('button', { name: 'Close search', exact: true }).tap();
+    await page.getByRole('button', { name: 'Done', exact: true }).tap();
     await expect(input).toHaveCount(0);
     await expect(
       page.getByRole('button', { name: 'Edit search: poo', exact: true }),
@@ -343,7 +343,7 @@ test('mobile search opens only on a tap and keeps its query after collapsing', a
       ),
     ).toBe(true);
     await page.setViewportSize({ width: 844, height: 390 });
-    await page.getByRole('button', { name: 'Close search', exact: true }).tap();
+    await page.getByRole('button', { name: 'Done', exact: true }).tap();
     await expect(launcher).toBeVisible();
     await expect(input).toHaveCount(0);
   } finally {
