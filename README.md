@@ -35,3 +35,7 @@ See [UI incident notes](docs/incidents/README.md) for the mobile keyboard invest
 While mobile search is open, primary pointer taps outside the input and close button prevent the default focus transfer. This keeps the keyboard stable without forcing focus back after blur. Emoji copying and category navigation stay usable; category links disable SvelteKit focus reset for this mode. The close button and keyboard Escape explicitly cancel search. On desktop, emoji clicks also keep the search input focused.
 
 Copy confirmation appears as a compact status in the existing row below search, temporarily replacing the Berlin signature. It stays inside the visible app viewport with the mobile keyboard open, does not shift the grid and never takes focus. Failed copies display “Copy unavailable” instead of a success indicator.
+
+## Production
+
+Netlify project `emo` publishes [emo.netlify.app](https://emo.netlify.app/) from `main`. The committed [Netlify configuration](netlify.toml) builds and publishes the static `build/` output; `.nvmrc` selects Node 26. Netlify automatic builds and publishing must stay enabled, with the production branch set to `main` in project settings. See [the deployment incident](docs/incidents/2026-11-02-netlify-production-branch.md).

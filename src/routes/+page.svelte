@@ -11,6 +11,7 @@
   let searchRef;
   let launcherRef;
   let mobileSearchOpen = $state(false);
+  let hydrated = $state(false);
   let resultsRef;
   let scrollTop = $state(0);
   let grid = $state.raw({ columns: 12, stride: 70, rows: 4 });
@@ -234,6 +235,7 @@
     updateSearchMode();
     mobile.addEventListener('change', updateSearchMode);
     void loadCatalog();
+    hydrated = true;
     return () => {
       mobile.removeEventListener('change', updateSearchMode);
       observer.disconnect();
@@ -338,6 +340,7 @@
         <button
           type="button"
           class="search-launcher"
+          disabled={!hydrated}
           class:has-query={!!query}
           bind:this={launcherRef}
           aria-label="Open search"
@@ -477,6 +480,7 @@
             {#each visible as emoji (emoji[0])}
               <button
                 class="emoji"
+                disabled={!hydrated}
                 class:just-copied={copied === emoji[0]}
                 data-emoji={emoji[0]}
                 title={emoji[1]}

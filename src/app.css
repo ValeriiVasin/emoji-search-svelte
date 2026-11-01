@@ -600,3 +600,11 @@ main,
     }
   }
 }
+
+.search-launcher:disabled,
+.emoji:disabled {
+  cursor: wait;
+}
+.search-launcher:disabled {
+  opacity: 0.5;
+}
