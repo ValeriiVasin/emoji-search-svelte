@@ -1,62 +1,151 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('emoji app', () => {
+test.describe('emoji search', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('searchbox')).toBeFocused();
   });
 
-  test('search box is focused after the page load', async ({ page }) => {
-    await expect(page.getByRole('searchbox')).toBeFocused();
-  });
-
-  test('should filter emojis', async ({ page }) => {
+  test('keeps the first screen small and filters immediately', async ({
+    page,
+  }) => {
+    await expect(page.locator('[data-emoji]')).toHaveCount(72);
     await page.getByRole('searchbox').fill('poo');
-
     await expect(page).toHaveURL('/?q=poo');
     await expect(page.locator('[data-emoji="💩"]')).toBeVisible();
-    await expect(page.locator('[data-emoji="😀"]')).toBeHidden();
+    await expect(page.locator('[data-emoji="😀"]')).toHaveCount(0);
+    expect(await page.locator('[data-emoji]').count()).toBeLessThanOrEqual(72);
   });
 
-  test('should keep search state through navigation and refresh', async ({ page }) => {
-    await page.getByRole('searchbox').fill('poo');
+  test('replaces typing history and restores category with Back, Forward and refresh', async ({
+    page,
+  }) => {
     await page.getByRole('searchbox').fill('smile');
-
+    await expect(page).toHaveURL('/?q=smile');
+    await page.getByRole('link', { name: 'People', exact: true }).click();
+    await expect(page).toHaveURL(/group=People/);
     await page.goBack();
-    await expect(page.getByRole('searchbox')).toHaveValue('poo');
-
+    await expect(page).toHaveURL('/?q=smile');
     await page.reload();
-    await expect(page.getByRole('searchbox')).toHaveValue('poo');
+    await expect(page.getByRole('searchbox')).toHaveValue('smile');
+    await page.goForward();
+    await expect(page).toHaveURL(/group=People/);
+    await expect(page.getByRole('searchbox')).toHaveValue('smile');
+    await page.getByRole('searchbox').focus();
+    await page
+      .getByRole('searchbox')
+      .evaluate((input) =>
+        input.setSelectionRange(input.value.length, input.value.length),
+      );
+    await page.getByRole('searchbox').pressSequentially('s');
+    await expect(page).toHaveURL(/q=smiles/);
+    await page.goBack();
+    await expect(page).toHaveURL('/?q=smile');
   });
 
-  test('should copy emoji into clipboard', async ({ page, context }) => {
+  test('copies the actual emoji and reports clipboard errors honestly', async ({
+    page,
+    context,
+  }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    await expect(page.locator('.flash')).toBeHidden();
-
-    await page.getByText('💩', { exact: true }).click();
-
-    await expect(page.locator('.flash')).toBeVisible();
-    await expect(page.locator('.flash')).toHaveText('💩 copied');
-    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe('💩');
-    await expect(page.locator('.flash')).toBeHidden();
+    await page.getByRole('searchbox').fill('poo');
+    await page.locator('[data-emoji="💩"]').click();
+    await expect(page.getByRole('status')).toContainText('💩 copied');
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toBe('💩');
+    await page.evaluate(() => {
+      Object.defineProperty(navigator.clipboard, 'writeText', {
+        value: () => Promise.reject(new Error('denied')),
+      });
+    });
+    await page.locator('[data-emoji="💩"]').click();
+    await expect(page.getByRole('status')).toContainText('Copy unavailable');
   });
 
-  test('should restore a shared query URL', async ({ page }) => {
+  test('restores shared searches and includes Unicode 18 additions', async ({
+    page,
+  }) => {
+    await page.goto('/?q=cracking%20face');
+    await expect(page.getByRole('searchbox')).toHaveValue('cracking face');
+    await expect(
+      page.getByRole('button', { name: /Copy cracking face/ }),
+    ).toBeVisible();
+    await page.getByRole('searchbox').fill('');
+    await page.getByRole('searchbox').pressSequentially('cracking face');
+    await expect(
+      page.getByRole('button', { name: /Copy cracking face/ }),
+    ).toBeVisible();
     await page.goto('/?q=poo');
-    await expect(page.getByRole('searchbox')).toHaveValue('poo');
     await expect(page.locator('[data-emoji="💩"]')).toBeVisible();
-    await expect(page.locator('[data-emoji="😀"]')).toBeHidden();
   });
 
-  test('should show empty results and restore emojis when cleared', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
+  test('paginates with links and bounds the rendered collection', async ({
+    page,
+  }) => {
+    const first = await page
+      .locator('[data-emoji]')
+      .first()
+      .getAttribute('data-emoji');
+    await page.getByRole('link', { name: /^Next/ }).click();
+    await expect(page).toHaveURL('/?page=2');
+    await expect(page.locator('[data-emoji]')).toHaveCount(72);
+    await expect(page.locator('[data-emoji]').first()).not.toHaveAttribute(
+      'data-emoji',
+      first,
+    );
+    await page.reload();
+    await expect(
+      page.getByRole('navigation', { name: 'Results pages' }),
+    ).toContainText('Page 2');
+    await page.getByRole('link', { name: /Previous/ }).click();
+    await expect(page).toHaveURL('/');
+    await expect(page.locator('[data-emoji]').first()).toHaveAttribute(
+      'data-emoji',
+      first,
+    );
+    await page.goto('/?page=999999&group=invalid');
+    await expect(page.locator('[data-emoji]')).not.toHaveCount(0);
+    expect(await page.locator('[data-emoji]').count()).toBeLessThanOrEqual(72);
+  });
+
+  test('adapts to mobile, system theme, empty results and clearing', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 740 });
+    await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
+    await expect(page.locator('body')).toHaveCSS('color', 'rgb(238, 243, 231)');
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(page.locator('body')).toHaveCSS('color', 'rgb(23, 44, 37)');
     await page.getByRole('searchbox').fill('no_such_emoji_123456789');
     await expect(page.locator('.no-result')).toBeVisible();
-    await expect(page.locator('[data-emoji]:visible')).toHaveCount(0);
-    await page.getByRole('searchbox').fill('');
+    await expect(page.locator('[data-emoji]')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Clear search' }).click();
     await expect(page).toHaveURL('/');
-    await expect(page.locator('.no-result')).toBeHidden();
     await expect(page.locator('[data-emoji="😀"]')).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    const size = await page.locator('[data-emoji]').first().boundingBox();
+    expect(size.width).toBeGreaterThanOrEqual(44);
+    expect(size.height).toBeGreaterThanOrEqual(44);
   });
+});
+
+test('renders a useful first screen before JavaScript or the catalog loads', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  const requests = [];
+  page.on('request', (request) => requests.push(request.url()));
+  await page.goto('http://127.0.0.1:4173/');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(
+    'Say it with',
+  );
+  await expect(page.locator('[data-emoji]')).toHaveCount(72);
+  expect(requests.some((url) => url.includes('catalog'))).toBe(false);
+  await context.close();
 });
