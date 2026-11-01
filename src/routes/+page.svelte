@@ -1,5 +1,5 @@
 <script>
-  import { onMount, untrack } from 'svelte';
+  import { flushSync, onMount, untrack } from 'svelte';
   import { browser } from '$app/env';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
@@ -9,6 +9,8 @@
   let catalog = $state.raw(null);
   let loadFailed = $state(false);
   let searchRef;
+  let launcherRef;
+  let mobileSearchOpen = $state(false);
   let resultsRef;
   let scrollTop = $state(0);
   let grid = $state.raw({ columns: 12, stride: 70, rows: 4 });
@@ -107,6 +109,19 @@
     return `/${params.size ? `?${params}` : ''}`;
   }
 
+  function openSearch() {
+    flushSync(() => {
+      mobileSearchOpen = true;
+    });
+    searchRef.focus({ preventScroll: true });
+  }
+
+  function closeSearch() {
+    mobileSearchOpen = false;
+    searchRef.blur();
+    launcherRef?.focus({ preventScroll: true });
+  }
+
   function search(value) {
     clearTimeout(scrollTimer);
     searchText = value;
@@ -161,6 +176,7 @@
       copied = '';
       copyFailed = true;
     }
+    if (mobileSearchOpen) closeSearch();
     copyTimer = setTimeout(() => {
       copied = '';
       copyFailed = false;
@@ -186,9 +202,19 @@
     observer.observe(resultsRef);
     window.visualViewport?.addEventListener('resize', updateViewport);
     window.addEventListener('resize', updateViewport);
-    searchRef.focus({ preventScroll: true });
+    const mobile = matchMedia(
+      '(max-width: 600px), (hover: none) and (pointer: coarse)',
+    );
+    const updateSearchMode = () => {
+      mobileSearchOpen = false;
+      if (mobile.matches) searchRef.blur();
+      else searchRef.focus({ preventScroll: true });
+    };
+    updateSearchMode();
+    mobile.addEventListener('change', updateSearchMode);
     void loadCatalog();
     return () => {
+      mobile.removeEventListener('change', updateSearchMode);
       observer.disconnect();
       window.visualViewport?.removeEventListener('resize', updateViewport);
       window.removeEventListener('resize', updateViewport);
@@ -223,8 +249,8 @@
   <main>
     <h1 class="sr-only">Emoji Search</h1>
     <section class="browser" aria-label="Emoji search">
-      <div class="search-panel">
-        <div class="search-wrap">
+      <div class="search-panel" class:mobile-open={mobileSearchOpen}>
+        <div class="search-wrap" id="search-field">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -243,6 +269,12 @@
             autocomplete="off"
             spellcheck="false"
             maxlength="100"
+            onkeydown={(event) => {
+              if (event.key === 'Escape' && mobileSearchOpen) {
+                event.preventDefault();
+                closeSearch();
+              }
+            }}
           />
           {#if query}<button
               class="clear-search"
@@ -252,7 +284,43 @@
                 searchRef.focus();
               }}>×</button
             >{/if}
+          <button
+            type="button"
+            class="close-search"
+            aria-label="Close search"
+            onclick={closeSearch}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg
+            >
+          </button>
         </div>
+        <button
+          type="button"
+          class="search-launcher"
+          class:has-query={!!query}
+          bind:this={launcherRef}
+          aria-label="Open search"
+          aria-expanded={mobileSearchOpen}
+          aria-controls="search-field"
+          aria-hidden={mobileSearchOpen}
+          tabindex={mobileSearchOpen ? -1 : 0}
+          title={query ? `Search: ${query}` : 'Search emoji'}
+          onclick={openSearch}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            aria-hidden="true"
+            ><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4 4" /></svg
+          >
+        </button>
       </div>
       <div class="results-heading">
         <h2 class="sr-only">
@@ -290,6 +358,15 @@
           </svg>
         </span>
       </div>
+      {#if query && !mobileSearchOpen}
+        <button
+          type="button"
+          class="mobile-query"
+          onclick={openSearch}
+          aria-label={`Edit search: ${query}`}
+          ><span>Search:</span> {query}</button
+        >
+      {/if}
       {#if browsing}
         <nav id="categories" class="categories" aria-label="Emoji categories">
           <a href={href(-1)} aria-current={group < 0 ? 'page' : undefined}

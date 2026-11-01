@@ -27,3 +27,5 @@ The committed catalog combines [Unicode Emoji 18.0](https://www.unicode.org/Publ
 Unicode data is covered by [the Unicode license](docs/UNICODE-LICENSE.txt); emojilib is MIT licensed. Native glyph appearance and availability depend on the device's OS. No external fonts, emoji images, analytics or runtime APIs are loaded.
 
 See [rendering goals and verification](docs/fast-emoji-search.md).
+
+On desktop, search stays at the top and receives focus on entry. On phones/narrow or touch-only screens, a bottom-right search button expands the field; focus is requested synchronously inside the tap handler. Closing preserves the query, with a visible query chip to reopen it. Copying an emoji completes before the mobile search collapses. The reveal animation respects reduced-motion preferences; the bottom field follows the visual viewport when the keyboard reduces the available height.

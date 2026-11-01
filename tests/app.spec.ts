@@ -162,9 +162,11 @@ test.describe('emoji search', () => {
       ),
     ).toBe(true);
 
-    expect((await page.getByRole('searchbox').boundingBox()).y).toBeLessThan(
-      24,
-    );
+    await expect(page.getByRole('searchbox')).toHaveCount(0);
+    const launcher = await page
+      .getByRole('button', { name: 'Open search' })
+      .boundingBox();
+    expect(launcher.y + launcher.height).toBeLessThanOrEqual(740);
     expect(
       (await page.locator('[data-emoji]').first().boundingBox()).y,
     ).toBeLessThan(200);
@@ -172,6 +174,8 @@ test.describe('emoji search', () => {
     await expect(page.locator('body')).toHaveCSS('color', 'rgb(232, 234, 237)');
     await page.emulateMedia({ colorScheme: 'light' });
     await expect(page.locator('body')).toHaveCSS('color', 'rgb(32, 33, 36)');
+    await page.getByRole('button', { name: 'Open search' }).click();
+    await expect(page.getByRole('searchbox')).toBeFocused();
     await page.getByRole('searchbox').fill('no_such_emoji_123456789');
     await expect(page.locator('.no-result')).toBeVisible();
     await expect(page.locator('[data-emoji]')).toHaveCount(0);
@@ -280,4 +284,69 @@ test('fills the first viewport even while the full catalog is delayed', async ({
         .evaluate((el) => el.scrollHeight),
     )
     .toBeGreaterThan(10000);
+});
+
+test('mobile search opens only on a tap and keeps its query after collapsing', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 700 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  const page = await context.newPage();
+  try {
+    await page.goto('http://127.0.0.1:4173/');
+    const launcher = page.getByRole('button', {
+      name: 'Open search',
+      exact: true,
+    });
+    await expect(launcher).toBeVisible();
+    await expect(page.getByRole('searchbox')).toHaveCount(0);
+    expect(await page.evaluate(() => document.activeElement.tagName)).not.toBe(
+      'INPUT',
+    );
+    await launcher.tap();
+    const input = page.getByRole('searchbox');
+    await expect(input).toBeFocused();
+    await input.fill('poo');
+    await expect(page.locator('[data-emoji="💩"]')).toBeVisible();
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.locator('[data-emoji="💩"]').tap();
+    await expect(page.getByRole('status')).toContainText('💩 copied');
+    await expect(input).toHaveCount(0);
+    await launcher.tap();
+    await expect(input).toBeFocused();
+    await page.getByRole('button', { name: 'Close search', exact: true }).tap();
+    await expect(input).toHaveCount(0);
+    await expect(
+      page.getByRole('button', { name: 'Edit search: poo', exact: true }),
+    ).toBeVisible();
+    await expect(page).toHaveURL('http://127.0.0.1:4173/?q=poo');
+    await page
+      .getByRole('button', { name: 'Edit search: poo', exact: true })
+      .tap();
+    await expect(input).toBeFocused();
+    await expect(input).toHaveValue('poo');
+    await input.press('Escape');
+    await expect(input).toHaveCount(0);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await launcher.tap();
+    await expect(input).toBeFocused();
+    await page.setViewportSize({ width: 320, height: 400 });
+    await expect
+      .poll(() => input.boundingBox().then((box) => box.y + box.height))
+      .toBeLessThanOrEqual(400);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.getByRole('button', { name: 'Close search', exact: true }).tap();
+    await expect(launcher).toBeVisible();
+    await expect(input).toHaveCount(0);
+  } finally {
+    await context.close();
+  }
 });
