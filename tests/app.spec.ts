@@ -2,6 +2,16 @@ import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import catalog from '../src/lib/data/catalog.json' with { type: 'json' };
 
+declare global {
+  interface Window {
+    setKeyboardViewport: (
+      height: number,
+      top: number,
+      event: 'resize' | 'scroll',
+    ) => void;
+  }
+}
+
 test.describe('emoji search', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -166,7 +176,7 @@ test.describe('emoji search', () => {
     const launcher = await page
       .getByRole('button', { name: 'Open search' })
       .boundingBox();
-    expect(launcher.y + launcher.height).toBeLessThanOrEqual(740);
+    expect(launcher.y).toBeLessThan(24);
     expect(
       (await page.locator('[data-emoji]').first().boundingBox()).y,
     ).toBeLessThan(200);
@@ -317,7 +327,7 @@ test('mobile search opens only on a tap and keeps its query after collapsing', a
     await expect(input).toHaveCount(0);
     await launcher.tap();
     await expect(input).toBeFocused();
-    await page.getByRole('button', { name: 'Done', exact: true }).tap();
+    await page.getByRole('button', { name: 'Close search', exact: true }).tap();
     await expect(input).toHaveCount(0);
     await expect(
       page.getByRole('button', { name: 'Edit search: poo', exact: true }),
@@ -343,9 +353,84 @@ test('mobile search opens only on a tap and keeps its query after collapsing', a
       ),
     ).toBe(true);
     await page.setViewportSize({ width: 844, height: 390 });
-    await page.getByRole('button', { name: 'Done', exact: true }).tap();
+    await page.getByRole('button', { name: 'Close search', exact: true }).tap();
     await expect(launcher).toBeVisible();
     await expect(input).toHaveCount(0);
+  } finally {
+    await context.close();
+  }
+});
+
+test('keeps mobile top search stable after blur and repeated viewport panning', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 700 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  await context.addInitScript(() => {
+    const viewport = new EventTarget();
+    Object.assign(viewport, {
+      height: 700,
+      width: 390,
+      offsetTop: 0,
+      offsetLeft: 0,
+      scale: 1,
+    });
+    Object.defineProperty(window, 'visualViewport', {
+      configurable: true,
+      value: viewport,
+    });
+    window.setKeyboardViewport = (height, top, event) => {
+      Object.assign(viewport, { height, offsetTop: top });
+      viewport.dispatchEvent(new Event(event));
+    };
+  });
+  const page = await context.newPage();
+  try {
+    await page.goto('http://127.0.0.1:4173/');
+    await page.getByRole('button', { name: 'Open search', exact: true }).tap();
+    const input = page.getByRole('searchbox');
+    await input.fill('home');
+    for (const top of [170, 90, 0]) {
+      await input.evaluate((el) => el.blur());
+      await page.evaluate(() => window.setKeyboardViewport(700, 0, 'resize'));
+      await input.tap();
+      await expect(input).toBeFocused();
+      await page.evaluate(() => window.setKeyboardViewport(340, 0, 'resize'));
+      await page.evaluate(
+        (value) => window.setKeyboardViewport(340, value, 'scroll'),
+        top,
+      );
+      await expect
+        .poll(async () => {
+          const box = await page.locator('.search-wrap').boundingBox();
+          return Math.abs(box.y - top - 12);
+        })
+        .toBeLessThan(2);
+      await expect(input).toHaveValue('home');
+      await expect
+        .poll(() =>
+          page
+            .locator('.shell')
+            .evaluate((el) => el.getBoundingClientRect().top),
+        )
+        .toBe(top);
+      expect(
+        await page.evaluate(() => document.scrollingElement.scrollTop),
+      ).toBe(0);
+    }
+    await page.getByRole('button', { name: 'Close search', exact: true }).tap();
+    await page.evaluate(() => window.setKeyboardViewport(700, 0, 'resize'));
+    await expect(
+      page.getByRole('button', { name: 'Open search', exact: true }),
+    ).toBeVisible();
+    await expect
+      .poll(() =>
+        page.locator('.shell').evaluate((el) => el.getBoundingClientRect().top),
+      )
+      .toBe(0);
   } finally {
     await context.close();
   }

@@ -24,6 +24,12 @@
 * {
   box-sizing: border-box;
 }
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
 body {
   margin: 0;
 }
@@ -67,8 +73,12 @@ a:hover {
   white-space: nowrap;
 }
 .shell {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   max-width: 1008px;
-  margin: auto;
+  margin: 0 auto;
   padding: 0 24px;
   height: 100dvh;
   display: flex;
@@ -393,16 +403,13 @@ main,
   footer {
     display: none;
   }
-  .results {
-    --cell-height: 44px;
-  }
   .empty > span,
   .empty p {
     display: none;
   }
 }
 
-/* Desktop keeps its focused top field; mobile reveals search only on a tap. */
+/* Search stays in the top toolbar on both desktop and mobile. */
 .search-launcher,
 .close-search,
 .mobile-query {
@@ -417,19 +424,21 @@ main,
   }
   .search-panel {
     position: relative;
-    order: 3;
     width: 100%;
-    height: 56px;
+    height: 52px;
     padding: 0;
-    margin-top: 8px;
+    margin: 12px 0 0;
     background: transparent;
   }
   .search-panel .search-wrap {
     position: absolute;
-    inset: 0;
-    height: 56px;
-    border-radius: 28px;
-    background: var(--bg);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 60px;
+    height: 52px;
+    border-radius: 26px;
+    background: var(--hover);
     visibility: hidden;
     pointer-events: none;
   }
@@ -437,69 +446,65 @@ main,
     visibility: visible;
     pointer-events: auto;
   }
-  .search-launcher {
+  .search-launcher,
+  .close-search {
     position: absolute;
     right: 0;
-    bottom: 0;
+    top: 0;
     display: grid;
     place-items: center;
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     padding: 0;
-    border: 0;
+    border: 1px solid var(--line);
     border-radius: 50%;
-    background: var(--ink);
-    color: var(--bg);
-    box-shadow: 0 3px 12px #0003;
+    background: var(--hover);
+    color: var(--ink);
   }
-  .search-launcher svg {
+  .search-launcher svg,
+  .close-search svg {
     width: 24px;
     height: 24px;
   }
   .search-launcher.has-query::after {
     content: '';
     position: absolute;
-    top: 9px;
-    right: 9px;
+    top: 8px;
+    right: 8px;
     width: 7px;
     height: 7px;
     border-radius: 50%;
     background: var(--accent);
     border: 1px solid var(--bg);
   }
+  .close-search {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .search-panel.mobile-open .close-search {
+    visibility: visible;
+    pointer-events: auto;
+  }
   .search-panel.mobile-open .search-launcher {
     visibility: hidden;
     pointer-events: none;
   }
-  .close-search {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    min-width: 60px;
-    height: 44px;
-    padding: 0 10px;
-    border: 0;
-    border-left: 1px solid var(--line);
-    border-radius: 0 22px 22px 0;
-    background: transparent;
-    color: var(--accent);
-    font-size: 14px;
-    font-weight: 500;
-  }
+  .search-launcher:active,
   .close-search:active {
-    background: var(--hover);
+    background: var(--line);
   }
   .mobile-query {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 64px;
     display: block;
-    align-self: flex-start;
-    max-width: 100%;
-    min-height: 32px;
-    margin: 0 0 6px;
-    padding: 4px 10px;
-    border: 1px solid var(--line);
-    border-radius: 16px;
+    height: 52px;
+    padding: 0;
+    border: 0;
     background: transparent;
-    font-size: 12px;
+    text-align: left;
+    font-size: 15px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -508,24 +513,36 @@ main,
     color: var(--muted);
   }
 }
+@media (prefers-reduced-motion: no-preference) {
+  .emoji span {
+    transition: transform 100ms ease;
+  }
+  .emoji:active span {
+    transform: scale(1.12);
+  }
+}
 @media (max-width: 600px) and (prefers-reduced-motion: no-preference),
   (hover: none) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
   .search-panel.mobile-open .search-wrap {
-    animation: search-reveal 180ms ease-out;
+    animation: search-reveal 160ms ease-out;
   }
-  .search-launcher {
-    transition: transform 120ms ease;
+  .search-launcher,
+  .close-search {
+    transition:
+      transform 100ms ease,
+      background-color 100ms ease;
   }
-  .search-launcher:active {
-    transform: scale(0.94);
+  .search-launcher:active,
+  .close-search:active {
+    transform: scale(1.12);
   }
   @keyframes search-reveal {
     from {
-      clip-path: inset(0 0 0 calc(100% - 56px) round 28px);
-      opacity: 0.4;
+      transform: translateX(6px);
+      opacity: 0;
     }
     to {
-      clip-path: inset(0 round 28px);
+      transform: translateX(0);
       opacity: 1;
     }
   }

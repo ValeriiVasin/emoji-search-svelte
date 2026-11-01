@@ -20,6 +20,7 @@
   let lastGrid = '';
   const overscan = 2;
   let viewportHeight = $state(null);
+  let viewportTop = $state(0);
   let copied = $state('');
   let copyFailed = $state(false);
   let copyTimer;
@@ -117,7 +118,9 @@
   }
 
   function closeSearch() {
-    mobileSearchOpen = false;
+    flushSync(() => {
+      mobileSearchOpen = false;
+    });
     searchRef.blur();
     launcherRef?.focus({ preventScroll: true });
   }
@@ -186,6 +189,7 @@
   onMount(() => {
     const updateViewport = () => {
       viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      viewportTop = window.visualViewport?.offsetTop ?? 0;
     };
     const observer = new ResizeObserver(([entry]) => {
       const style = getComputedStyle(resultsRef);
@@ -201,6 +205,7 @@
     updateViewport();
     observer.observe(resultsRef);
     window.visualViewport?.addEventListener('resize', updateViewport);
+    window.visualViewport?.addEventListener('scroll', updateViewport);
     window.addEventListener('resize', updateViewport);
     const mobile = matchMedia(
       '(max-width: 600px), (hover: none) and (pointer: coarse)',
@@ -217,6 +222,7 @@
       mobile.removeEventListener('change', updateSearchMode);
       observer.disconnect();
       window.visualViewport?.removeEventListener('resize', updateViewport);
+      window.visualViewport?.removeEventListener('scroll', updateViewport);
       window.removeEventListener('resize', updateViewport);
       clearTimeout(copyTimer);
       clearTimeout(scrollTimer);
@@ -245,11 +251,22 @@
 <div
   class="shell"
   style:height={viewportHeight ? `${viewportHeight}px` : undefined}
+  style:top={`${viewportTop}px`}
 >
   <main>
     <h1 class="sr-only">Emoji Search</h1>
     <section class="browser" aria-label="Emoji search">
       <div class="search-panel" class:mobile-open={mobileSearchOpen}>
+        {#if query && !mobileSearchOpen}
+          <button
+            type="button"
+            class="mobile-query"
+            onclick={openSearch}
+            aria-label={`Edit search: ${query}`}
+            ><span>Search:</span> {query}</button
+          >
+        {/if}
+
         <div class="search-wrap" id="search-field">
           <svg
             viewBox="0 0 24 24"
@@ -284,13 +301,22 @@
                 searchRef.focus();
               }}>×</button
             >{/if}
-          <button
-            type="button"
-            class="close-search"
-            title="Close search"
-            onclick={closeSearch}>Done</button
-          >
         </div>
+        <button
+          type="button"
+          class="close-search"
+          aria-label="Close search"
+          title="Close search"
+          onclick={closeSearch}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg
+          >
+        </button>
         <button
           type="button"
           class="search-launcher"
@@ -350,15 +376,6 @@
           </svg>
         </span>
       </div>
-      {#if query && !mobileSearchOpen}
-        <button
-          type="button"
-          class="mobile-query"
-          onclick={openSearch}
-          aria-label={`Edit search: ${query}`}
-          ><span>Search:</span> {query}</button
-        >
-      {/if}
       {#if browsing}
         <nav id="categories" class="categories" aria-label="Emoji categories">
           <a href={href(-1)} aria-current={group < 0 ? 'page' : undefined}

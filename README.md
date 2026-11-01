@@ -28,4 +28,6 @@ Unicode data is covered by [the Unicode license](docs/UNICODE-LICENSE.txt); emoj
 
 See [rendering goals and verification](docs/fast-emoji-search.md).
 
-On desktop, search stays at the top and receives focus on entry. On phones/narrow or touch-only screens, a bottom-right search button expands the field; focus is requested synchronously inside the tap handler. Closing preserves the query, with a visible query chip to reopen it. Copying an emoji completes before the mobile search collapses. The reveal animation respects reduced-motion preferences; the bottom field follows the visual viewport when the keyboard reduces the available height.
+On desktop, search stays at the top and receives focus on entry. On phones/narrow or touch-only screens, a top-right search button expands into a top search field with a separate close button. Focus is requested synchronously inside the tap handler; the page never opens the mobile keyboard on load. Closing preserves the query in the same toolbar. Opening and closing keep the toolbar height unchanged. Pressed buttons enlarge and change background; animations respect reduced-motion preferences. Only results scroll, while the visual viewport tracks available height and panning.
+
+See [UI incident notes](docs/incidents/README.md) for the mobile keyboard investigation and verification limits.
