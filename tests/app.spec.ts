@@ -113,10 +113,16 @@ test.describe('emoji search', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 320, height: 740 });
+    expect((await page.getByRole('searchbox').boundingBox()).y).toBeLessThan(
+      24,
+    );
+    expect(
+      (await page.locator('[data-emoji]').first().boundingBox()).y,
+    ).toBeLessThan(200);
     await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
-    await expect(page.locator('body')).toHaveCSS('color', 'rgb(238, 243, 231)');
+    await expect(page.locator('body')).toHaveCSS('color', 'rgb(232, 234, 237)');
     await page.emulateMedia({ colorScheme: 'light' });
-    await expect(page.locator('body')).toHaveCSS('color', 'rgb(23, 44, 37)');
+    await expect(page.locator('body')).toHaveCSS('color', 'rgb(32, 33, 36)');
     await page.getByRole('searchbox').fill('no_such_emoji_123456789');
     await expect(page.locator('.no-result')).toBeVisible();
     await expect(page.locator('[data-emoji]')).toHaveCount(0);
@@ -143,7 +149,7 @@ test('renders a useful first screen before JavaScript or the catalog loads', asy
   page.on('request', (request) => requests.push(request.url()));
   await page.goto('http://127.0.0.1:4173/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText(
-    'Say it with',
+    'Emoji Search',
   );
   await expect(page.locator('[data-emoji]')).toHaveCount(72);
   expect(requests.some((url) => url.includes('catalog'))).toBe(false);

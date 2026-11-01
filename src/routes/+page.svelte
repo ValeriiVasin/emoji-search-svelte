@@ -103,8 +103,7 @@
     const preload = setTimeout(() => {
       void loadCatalog();
     }, 1200);
-    if (matchMedia('(hover: hover) and (pointer: fine)').matches)
-      searchRef.focus({ preventScroll: true });
+    searchRef.focus({ preventScroll: true });
     return () => {
       clearTimeout(preload);
       clearTimeout(copyTimer);
@@ -113,87 +112,57 @@
 </script>
 
 <svelte:head>
-  <title>emo. — A little more expression</title>
+  <title>Emoji Search</title>
   <meta
     name="description"
     content="Find your next emoji. A fast, simple emoji search with the latest Unicode emoji. Search, tap, and copy."
   />
   <meta
     name="theme-color"
-    content="#f7f8f2"
+    content="#ffffff"
     media="(prefers-color-scheme: light)"
   />
   <meta
     name="theme-color"
-    content="#111b18"
+    content="#151515"
     media="(prefers-color-scheme: dark)"
   />
 </svelte:head>
 
 <div class="shell">
-  <header>
-    <a class="brand" href="/" aria-label="emo home"
-      ><span class="brand-mark" aria-hidden="true">✳</span> emo<span
-        class="brand-dot">.</span
-      ></a
-    >
-    <span class="header-note">Little things. Big feelings.</span>
-    <a
-      class="source-link"
-      href="https://github.com/valeriivasin/emoji-search-svelte"
-      target="_blank"
-      rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a
-    >
-  </header>
-
   <main>
-    <section class="hero" aria-labelledby="headline">
-      <div class="hero-copy">
-        <p class="eyebrow"><span></span> A LITTLE MORE EXPRESSION</p>
-        <h1 id="headline">Say it with<br /><em>a little feeling.</em></h1>
-        <p class="intro">
-          The right emoji is worth a thousand words.<br class="desktop-break" />
-          Find yours. Tap to copy. Make someone’s day.
-        </p>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <span class="art-caption">a whole mood</span><span class="hero-emoji"
-          >✌️</span
-        ><span class="spark spark-one">✧</span><span class="spark spark-two"
-          >✧</span
-        ><span class="art-scribble">↶</span>
-      </div>
-    </section>
-
+    <h1 class="sr-only">Emoji Search</h1>
     <section class="browser" aria-label="Emoji search">
-      <div class="search-wrap">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          aria-hidden="true"
-          ><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4 4" /></svg
-        >
-        <input
-          bind:this={searchRef}
-          type="search"
-          aria-label="Search emoji"
-          placeholder="What’s the feeling?"
-          value={searchText}
-          oninput={(event) => search(event.currentTarget.value)}
-          autocomplete="off"
-          spellcheck="false"
-          maxlength="100"
-        />
-        {#if query}<button
-            class="clear-search"
-            aria-label="Clear search"
-            onclick={() => {
-              search('');
-              searchRef.focus();
-            }}>×</button
-          >{:else}<span class="search-hint">Search anything</span>{/if}
+      <div class="search-panel">
+        <div class="search-wrap">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+            ><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4 4" /></svg
+          >
+          <input
+            bind:this={searchRef}
+            type="search"
+            aria-label="Search emoji"
+            placeholder="Search emoji"
+            value={searchText}
+            oninput={(event) => search(event.currentTarget.value)}
+            autocomplete="off"
+            spellcheck="false"
+            maxlength="100"
+          />
+          {#if query}<button
+              class="clear-search"
+              aria-label="Clear search"
+              onclick={() => {
+                search('');
+                searchRef.focus();
+              }}>×</button
+            >{/if}
+        </div>
       </div>
       <nav class="categories" aria-label="Emoji categories">
         <a href={href(-1)} aria-current={group < 0 ? 'page' : undefined}
@@ -216,17 +185,15 @@
           >{/each}
       </nav>
       <div class="results-heading">
-        <h2>
+        <h2 class="sr-only">
           {query
             ? `Results for “${query}”`
             : group >= 0
               ? initial.groups[group]
-              : 'Find your next favorite'}
+              : 'All emoji'}
         </h2>
-        <span
-          >{total.toLocaleString('en')} emoji <span class="count-dot">·</span> click
-          to copy</span
-        >
+        <span>{ready ? total.toLocaleString('en') : '…'} emoji</span>
+        <span>Tap to copy</span>
       </div>
       <div class="results" aria-busy={!ready}>
         {#if loadFailed}
@@ -273,20 +240,16 @@
         </nav>
       {/if}
     </section>
-    <aside class="little-note">
-      <span aria-hidden="true">✳</span>
-      <p>
-        Less searching. More expressing.<br /><span
-          >No downloads, no sign-ups. Just a little joy.</span
-        >
-      </p>
-    </aside>
   </main>
   <footer>
-    <a class="brand footer-brand" href="/">emo.</a>
-    <p>Unicode {initial.version} <span>·</span> Emoji styled by your device</p>
+    <span>Unicode {initial.version}</span>
     <a href="https://github.com/muan/emojilib" target="_blank" rel="noreferrer"
-      >Made with emojilib ↗</a
+      >emojilib</a
+    >
+    <a
+      href="https://github.com/valeriivasin/emoji-search-svelte"
+      target="_blank"
+      rel="noreferrer">GitHub</a
     >
   </footer>
 </div>
