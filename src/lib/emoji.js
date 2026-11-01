@@ -1,5 +1,3 @@
-export const PAGE_SIZE = 72;
-
 export function normalizeQuery(value) {
   return value
     .trim()

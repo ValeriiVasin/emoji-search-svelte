@@ -178,7 +178,11 @@ input::-webkit-search-cancel-button {
   --cell-height: 64px;
   --gap: 6px;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
 }
 .emojis {
   display: grid;
@@ -250,36 +254,6 @@ input::-webkit-search-cancel-button {
   border-radius: 8px;
   background: var(--bg);
 }
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 8px;
-  padding: 4px 0;
-  border-top: 1px solid var(--line);
-  font-size: 12px;
-}
-.pagination a {
-  display: flex;
-  align-items: center;
-  min-width: 90px;
-  min-height: 44px;
-}
-.pagination > a:last-child {
-  justify-content: flex-end;
-}
-.pagination > span {
-  color: var(--muted);
-}
-.pagination strong {
-  color: var(--ink);
-  font-weight: 400;
-}
-.pagination .disabled {
-  opacity: 0.5;
-  min-width: 90px;
-}
 footer {
   display: flex;
   justify-content: center;
@@ -350,13 +324,6 @@ footer > span {
   .emoji {
     font-size: 30px;
   }
-  .pagination a,
-  .pagination .disabled {
-    min-width: 76px;
-  }
-  .pagination {
-    font-size: 11px;
-  }
 }
 
 .byline {
@@ -379,7 +346,7 @@ footer > span {
   }
 }
 
-/* The result window uses the space left by the search and pagination. */
+/* Only the results scroll; the search stays in the viewport. */
 
 main,
 .browser {
@@ -390,8 +357,7 @@ main,
 }
 .search-panel,
 .results-heading,
-.categories,
-.pagination {
+.categories {
   flex-shrink: 0;
 }
 .browse-toggle {

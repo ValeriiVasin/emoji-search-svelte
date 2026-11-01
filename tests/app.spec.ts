@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import catalog from '../src/lib/data/catalog.json' with { type: 'json' };
 
 test.describe('emoji search', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,7 +13,8 @@ test.describe('emoji search', () => {
     await expect(
       page.getByRole('navigation', { name: 'Emoji categories' }),
     ).toHaveCount(0);
-    await expect(page.locator('[data-emoji]')).toHaveCount(72);
+    expect(await page.locator('[data-emoji]').count()).toBeGreaterThan(0);
+    expect(await page.locator('[data-emoji]').count()).toBeLessThan(200);
     await page.getByRole('searchbox').fill('poo');
     await expect(page).toHaveURL('/?q=poo');
     await expect(page.locator('[data-emoji="💩"]')).toBeVisible();
@@ -84,33 +86,53 @@ test.describe('emoji search', () => {
     await expect(page.locator('[data-emoji="💩"]')).toBeVisible();
   });
 
-  test('paginates with links and bounds the rendered collection', async ({
+  test('progressively scrolls to the last emoji with bounded DOM and restores shared position', async ({
     page,
   }) => {
-    const first = await page
-      .locator('[data-emoji]')
-      .first()
-      .getAttribute('data-emoji');
-    await page.getByRole('link', { name: /^Next/ }).click();
-    await expect(page).toHaveURL('/?page=2');
-    await expect(page.locator('[data-emoji]')).toHaveCount(72);
-    await expect(page.locator('[data-emoji]').first()).not.toHaveAttribute(
-      'data-emoji',
-      first,
-    );
-    await page.reload();
+    const results = page.getByRole('region', { name: 'Emoji results' });
     await expect(
       page.getByRole('navigation', { name: 'Results pages' }),
-    ).toContainText('Page 2');
-    await page.getByRole('link', { name: /Previous/ }).click();
-    await expect(page).toHaveURL('/');
+    ).toHaveCount(0);
+    await expect
+      .poll(() => results.evaluate((el) => el.scrollHeight))
+      .toBeGreaterThan(10000);
+    await results.evaluate((el) => {
+      el.scrollTop = el.scrollHeight;
+    });
+    const last = catalog.at(-1)[0];
+    await expect(page.locator('[data-emoji]').last()).toHaveAttribute(
+      'data-emoji',
+      last,
+    );
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get('at'))
+      .not.toBeNull();
+    expect(await page.locator('[data-emoji]').count()).toBeLessThan(200);
+    const shared = page.url();
+    await page.reload();
+    await expect(page.locator('[data-emoji]').last()).toHaveAttribute(
+      'data-emoji',
+      last,
+    );
+    await expect(page).toHaveURL(shared);
+    await results.evaluate((el) => {
+      el.scrollTop = 0;
+    });
     await expect(page.locator('[data-emoji]').first()).toHaveAttribute(
       'data-emoji',
-      first,
+      '😀',
     );
-    await page.goto('/?page=999999&group=invalid');
-    await expect(page.locator('[data-emoji]')).not.toHaveCount(0);
-    expect(await page.locator('[data-emoji]').count()).toBeLessThanOrEqual(72);
+    await expect(page).toHaveURL('/');
+    await results.evaluate((el) => {
+      el.scrollTop = 2000;
+    });
+    await expect
+      .poll(() => new URL(page.url()).searchParams.has('at'))
+      .toBe(true);
+    await page.getByRole('searchbox').fill('poo');
+    await expect(page).toHaveURL('/?q=poo');
+    await expect(page.locator('[data-emoji="💩"]')).toBeVisible();
+    await expect.poll(() => results.evaluate((el) => el.scrollTop)).toBe(0);
   });
 
   test('adapts to mobile, system theme, empty results and clearing', async ({
@@ -165,10 +187,10 @@ test.describe('emoji search', () => {
         () => document.documentElement.scrollHeight <= innerHeight,
       ),
     ).toBe(true);
-    const pagination = await page
-      .getByRole('navigation', { name: 'Results pages' })
+    const resultBox = await page
+      .getByRole('region', { name: 'Emoji results' })
       .boundingBox();
-    expect(pagination.y + pagination.height).toBeLessThanOrEqual(740);
+    expect(resultBox.y + resultBox.height).toBeLessThanOrEqual(740);
     await page.getByRole('link', { name: 'Hide categories' }).click();
     await expect(
       page.getByRole('navigation', { name: 'Emoji categories' }),
@@ -181,18 +203,11 @@ test.describe('emoji search', () => {
         ),
       )
       .toBe(true);
-    await expect
-      .poll(() =>
-        page.locator('.results').evaluate((results) => {
-          const last = results.querySelector('[data-emoji]:last-child');
-          return (
-            last &&
-            last.getBoundingClientRect().bottom <=
-              results.getBoundingClientRect().bottom
-          );
-        }),
-      )
-      .toBe(true);
+    const shortResults = await page
+      .getByRole('region', { name: 'Emoji results' })
+      .boundingBox();
+    expect(shortResults.y + shortResults.height).toBeLessThanOrEqual(400);
+    expect(await page.locator('[data-emoji]').count()).toBeLessThan(100);
     const size = await page.locator('[data-emoji]').first().boundingBox();
     expect(size.width).toBeGreaterThanOrEqual(44);
     expect(size.height).toBeGreaterThanOrEqual(44);

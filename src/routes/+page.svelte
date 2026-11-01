@@ -4,13 +4,19 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import initial from '#lib/data/initial.json';
-  import { filterEmojis, normalizeQuery, PAGE_SIZE } from '#lib/emoji.js';
+  import { filterEmojis, normalizeQuery } from '#lib/emoji.js';
 
   let catalog = $state.raw(null);
   let loadFailed = $state(false);
   let searchRef;
   let resultsRef;
-  let pageSize = $state(PAGE_SIZE);
+  let scrollTop = $state(0);
+  let grid = $state.raw({ columns: 12, stride: 70, rows: 6 });
+  let scrollTimer;
+  let lastScrollAnchor = 0;
+  let lastFilter = '';
+  let lastGrid = '';
+  const overscan = 2;
   let viewportHeight = $state(null);
   let copied = $state('');
   let copyFailed = $state(false);
@@ -27,21 +33,18 @@
   const browsing = $derived(
     visibleUrl?.searchParams.get('browse') === '1' || group >= 0,
   );
-  const requestedPage = $derived(
+  const anchor = $derived(
     Math.max(
-      1,
-      Number.parseInt(visibleUrl?.searchParams.get('page') ?? '1', 10) || 1,
+      0,
+      Number.parseInt(visibleUrl?.searchParams.get('at') ?? '0', 10) || 0,
     ),
   );
   const matches = $derived(
     catalog ? filterEmojis(catalog, query, group) : initial.emojis,
   );
   const ready = $derived(
-    catalog !== null || (!query && group < 0 && requestedPage === 1),
+    catalog !== null || (!query && group < 0 && anchor === 0),
   );
-  const total = $derived(catalog ? matches.length : initial.total);
-  const pages = $derived(Math.max(1, Math.ceil(total / pageSize)));
-  const currentPage = $derived(Math.min(requestedPage, pages));
   $effect(() => {
     const urlQuery = query;
     untrack(() => {
@@ -49,33 +52,86 @@
     });
   });
   $effect(() => {
-    if (query || group >= 0 || requestedPage > 1) void loadCatalog();
+    if (query || group >= 0 || anchor > 0) void loadCatalog();
   });
-  const visible = $derived(
-    matches.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+  const totalRows = $derived(Math.ceil(matches.length / grid.columns));
+  const firstRow = $derived(
+    Math.max(
+      0,
+      Math.min(totalRows, Math.floor(scrollTop / grid.stride) - overscan),
+    ),
   );
+  const endRow = $derived(
+    Math.min(
+      totalRows,
+      Math.floor(scrollTop / grid.stride) + grid.rows + overscan,
+    ),
+  );
+  const visible = $derived(
+    matches.slice(firstRow * grid.columns, endRow * grid.columns),
+  );
+
+  $effect(() => {
+    if (!resultsRef || (anchor > 0 && !catalog)) return;
+    const filter = `${query}|${group}`;
+    const sizing = `${grid.columns}|${grid.stride}`;
+    const index = Math.min(anchor, Math.max(0, matches.length - 1));
+    const top = Math.floor(index / grid.columns) * grid.stride;
+    untrack(() => {
+      if (
+        lastFilter === filter &&
+        lastScrollAnchor === anchor &&
+        lastGrid === sizing
+      )
+        return;
+      clearTimeout(scrollTimer);
+      lastFilter = filter;
+      lastScrollAnchor = anchor;
+      lastGrid = sizing;
+      resultsRef.scrollTop = top;
+      scrollTop = resultsRef.scrollTop;
+    });
+  });
 
   function href(
     nextGroup = group,
-    nextPage = 1,
     nextQuery = query,
     nextBrowsing = browsing,
+    nextAnchor = 0,
   ) {
     const params = new URLSearchParams();
     if (nextQuery) params.set('q', nextQuery);
     if (nextGroup >= 0) params.set('group', initial.groups[nextGroup]);
-    if (nextPage > 1) params.set('page', String(nextPage));
     if (nextBrowsing) params.set('browse', '1');
+    if (nextAnchor > 0) params.set('at', String(nextAnchor));
     return `/${params.size ? `?${params}` : ''}`;
   }
 
   function search(value) {
+    clearTimeout(scrollTimer);
     searchText = value;
-    void goto(href(group, 1, normalizeQuery(value)), {
+    void goto(href(group, normalizeQuery(value)), {
       shallow: true,
       replace: true,
       reset: false,
     });
+  }
+
+  function scroll() {
+    scrollTop = resultsRef.scrollTop;
+    if (!catalog) void loadCatalog();
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      const index =
+        Math.floor(resultsRef.scrollTop / grid.stride) * grid.columns;
+      if (index === anchor) return;
+      lastScrollAnchor = index;
+      void goto(href(group, query, browsing, index), {
+        shallow: true,
+        replace: true,
+        reset: false,
+      });
+    }, 120);
   }
 
   async function loadCatalog() {
@@ -120,11 +176,11 @@
       const columns = Number(style.getPropertyValue('--columns'));
       const cell = Number.parseFloat(style.getPropertyValue('--cell-height'));
       const gap = Number.parseFloat(style.getPropertyValue('--gap'));
-      const rows = Math.max(
-        1,
-        Math.floor((entry.contentRect.height + gap) / (cell + gap)),
-      );
-      pageSize = Math.min(PAGE_SIZE, columns * rows);
+      grid = {
+        columns,
+        stride: cell + gap,
+        rows: Math.max(1, Math.ceil(entry.contentRect.height / (cell + gap))),
+      };
     });
     updateViewport();
     observer.observe(resultsRef);
@@ -140,6 +196,7 @@
       window.removeEventListener('resize', updateViewport);
       clearTimeout(preload);
       clearTimeout(copyTimer);
+      clearTimeout(scrollTimer);
     };
   });
 </script>
@@ -210,7 +267,7 @@
         </h2>
         <a
           class="browse-toggle"
-          href={href(-1, 1, query, !browsing)}
+          href={href(-1, query, !browsing)}
           aria-expanded={browsing}
           aria-controls="categories"
           >{browsing ? 'Hide categories' : 'Browse categories'}
@@ -258,7 +315,22 @@
             >{/each}
         </nav>
       {/if}
-      <div class="results" bind:this={resultsRef} aria-busy={!ready}>
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex (A labelled scroll region needs keyboard focus for Page Up/Down.) -->
+      <div
+        class="results"
+        bind:this={resultsRef}
+        aria-busy={!ready}
+        role="region"
+        aria-label="Emoji results"
+        tabindex="0"
+        onscroll={scroll}
+        onwheel={() => {
+          if (!catalog) void loadCatalog();
+        }}
+        onfocusin={() => {
+          if (!catalog) void loadCatalog();
+        }}
+      >
         {#if loadFailed}
           <div class="empty">
             <h3>Couldn’t load the collection.</h3>
@@ -266,7 +338,11 @@
           </div>
         {:else if !ready}
           <div class="empty" role="status">Finding your emoji…</div>
-        {:else if visible.length}
+        {:else if matches.length}
+          <div
+            aria-hidden="true"
+            style:height={`${firstRow * grid.stride}px`}
+          ></div>
           <div class="emojis">
             {#each visible as emoji (emoji[0])}
               <button
@@ -280,6 +356,10 @@
               >
             {/each}
           </div>
+          <div
+            aria-hidden="true"
+            style:height={`${Math.max(0, totalRows - endRow) * grid.stride}px`}
+          ></div>
         {:else}
           <div class="empty no-result">
             <span aria-hidden="true">🔎</span>
@@ -289,19 +369,6 @@
           </div>
         {/if}
       </div>
-      {#if total > pageSize && ready}
-        <nav class="pagination" aria-label="Results pages">
-          {#if currentPage > 1}<a rel="prev" href={href(group, currentPage - 1)}
-              >← Previous</a
-            >{:else}<span class="disabled">← Previous</span>{/if}
-          <span>Page <strong>{currentPage}</strong> of {pages}</span>
-          {#if currentPage < pages}<a
-              rel="next"
-              href={href(group, currentPage + 1)}
-              >Next <span aria-hidden="true">→</span></a
-            >{:else}<span class="disabled">Next →</span>{/if}
-        </nav>
-      {/if}
     </section>
   </main>
   <footer>
