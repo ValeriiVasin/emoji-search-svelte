@@ -363,3 +363,23 @@ footer > span {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
+
+.byline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.heart {
+  color: #d45264;
+}
+.berlin-bear {
+  width: 13px;
+  height: 16px;
+  margin-left: 2px;
+  color: var(--ink);
+}
+@media (prefers-color-scheme: dark) {
+  .heart {
+    color: #f18a99;
+  }
+}

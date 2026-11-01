@@ -193,7 +193,25 @@
               : 'All emoji'}
         </h2>
         <span>{ready ? total.toLocaleString('en') : '…'} emoji</span>
-        <span>Tap to copy</span>
+        <span class="byline"
+          >made with <span class="heart" role="img" aria-label="love">♥</span>
+          in Berlin
+          <svg
+            class="berlin-bear"
+            viewBox="0 0 28 36"
+            role="img"
+            aria-label="Berlin bear"
+          >
+            <g fill="currentColor">
+              <circle cx="12" cy="4" r="2.5" /><circle cx="17" cy="5" r="2.5" />
+              <path d="M10 4c-3 0-5 2-5 4H2v4h7l2 3 7-2V8c0-3-3-4-8-4Z" />
+              <path
+                d="M11 12c-3 3-4 8-3 12l-4 7 4 2 6-8 1 7 6 1 1-3-4-1 1-8c3-3 2-7-1-10Z"
+              />
+              <path d="m11 14-6-3-2-5-3 1 2 8 8 4Zm5 0 7-6 3 1-5 8-4 2Z" />
+            </g>
+          </svg>
+        </span>
       </div>
       <div class="results" aria-busy={!ready}>
         {#if loadFailed}
