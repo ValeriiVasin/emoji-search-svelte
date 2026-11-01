@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 import catalog from '../src/lib/data/catalog.json' with { type: 'json' };
 
 test.describe('emoji search', () => {
@@ -228,4 +229,55 @@ test('renders a useful first screen before JavaScript or the catalog loads', asy
   await expect(page.locator('[data-emoji]')).toHaveCount(72);
   expect(requests.some((url) => url.includes('catalog'))).toBe(false);
   await context.close();
+});
+
+test('fills the first viewport even while the full catalog is delayed', async ({
+  page,
+}) => {
+  const manifest = JSON.parse(
+    await readFile(
+      new URL(
+        '../.svelte-kit/output/client/.vite/manifest.json',
+        import.meta.url,
+      ),
+      'utf8',
+    ),
+  );
+  const catalogFile = manifest['src/lib/data/catalog.json'].file;
+  let release;
+  const pending = new Promise((resolve) => {
+    release = resolve;
+  });
+  await page.route(`**/${catalogFile}`, async (route) => {
+    await pending;
+    await route.continue();
+  });
+  try {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('searchbox')).toBeFocused();
+    await expect
+      .poll(() =>
+        page
+          .getByRole('region', { name: 'Emoji results' })
+          .evaluate((results) => {
+            const bottom = Math.max(
+              ...[...results.querySelectorAll('[data-emoji]')].map(
+                (el) => el.getBoundingClientRect().bottom,
+              ),
+            );
+            return Math.max(0, results.getBoundingClientRect().bottom - bottom);
+          }),
+      )
+      .toBeLessThan(64);
+  } finally {
+    release();
+  }
+  await expect
+    .poll(() =>
+      page
+        .getByRole('region', { name: 'Emoji results' })
+        .evaluate((el) => el.scrollHeight),
+    )
+    .toBeGreaterThan(10000);
 });

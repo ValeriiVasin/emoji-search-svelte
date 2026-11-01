@@ -11,7 +11,7 @@
   let searchRef;
   let resultsRef;
   let scrollTop = $state(0);
-  let grid = $state.raw({ columns: 12, stride: 70, rows: 6 });
+  let grid = $state.raw({ columns: 12, stride: 70, rows: 4 });
   let scrollTimer;
   let lastScrollAnchor = 0;
   let lastFilter = '';
@@ -186,15 +186,12 @@
     observer.observe(resultsRef);
     window.visualViewport?.addEventListener('resize', updateViewport);
     window.addEventListener('resize', updateViewport);
-    const preload = setTimeout(() => {
-      void loadCatalog();
-    }, 1200);
     searchRef.focus({ preventScroll: true });
+    void loadCatalog();
     return () => {
       observer.disconnect();
       window.visualViewport?.removeEventListener('resize', updateViewport);
       window.removeEventListener('resize', updateViewport);
-      clearTimeout(preload);
       clearTimeout(copyTimer);
       clearTimeout(scrollTimer);
     };

@@ -66,7 +66,7 @@ await writeFile(
     total: catalog.length,
     groups,
     emojis: catalog
-      .slice(0, 72)
+      .slice(0, 384)
       .map(([char, name, group]) => [char, name, group]),
   }) + '\n',
 );
