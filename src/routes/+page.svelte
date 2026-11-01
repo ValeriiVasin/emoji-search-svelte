@@ -406,7 +406,7 @@
             aria-atomic="true"
           >
             {#if copied}
-              <span aria-hidden="true">✓</span><span>{copied} copied</span>
+              <span>{copied} copied</span>
             {:else if copyFailed}
               <span aria-hidden="true">!</span><span>Copy unavailable</span>
             {/if}
