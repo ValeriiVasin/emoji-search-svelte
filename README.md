@@ -33,3 +33,5 @@ On desktop, search stays at the top and receives focus on entry. On phones/narro
 See [UI incident notes](docs/incidents/README.md) for the mobile keyboard investigation and verification limits.
 
 While mobile search is open, primary pointer taps outside the input and close button prevent the default focus transfer. This keeps the keyboard stable without forcing focus back after blur. Emoji copying and category navigation stay usable; category links disable SvelteKit focus reset for this mode. The close button and keyboard Escape explicitly cancel search. On desktop, emoji clicks also keep the search input focused.
+
+Copy confirmation appears as a compact status in the existing row below search, temporarily replacing the Berlin signature. It stays inside the visible app viewport with the mobile keyboard open, does not shift the grid and never takes focus. Failed copies display “Copy unavailable” instead of a success indicator.

@@ -45,3 +45,13 @@ Evidence: bottom-positioned search moved away from the keyboard after focus, blu
 The production touch checks cover no initial input focus, tap-to-open focus, query preservation, explicit close/Escape, clipboard copying without losing focus, short-viewport layout and landscape. The viewport regression repeats focus/blur with different simulated keyboard heights and panning offsets. Simulation verifies geometry and focus handling; the real iPhone keyboard still needs manual acceptance.
 
 While mobile search is open, primary pointer taps outside the input and close button prevent the default focus transfer. This keeps the keyboard stable without forcing focus back after blur. Emoji copying and category navigation stay usable; category links disable SvelteKit focus reset for this mode. The close button and keyboard Escape explicitly cancel search.
+
+## Copy feedback with a mobile keyboard
+
+Problem and evidence: the copy toast was a body-level fixed element anchored to the layout viewport bottom, outside the shell that follows visualViewport. A mobile keyboard can cover it even while the search and results fit the visible viewport.
+
+Outcome: copying has a compact, readable confirmation that stays visible with the keyboard, preserves input focus and does not move or cover results. Reuse the existing metadata row directly below search: temporarily replace the Berlin signature with a small checkmark, emoji and “copied” status, then restore the signature after the existing timeout. Show “Copy unavailable” on failure, without a success checkmark. Keep the existing emoji highlight. A persistent polite, atomic status region announces updates without focus transfer.
+
+Non-goals: a new notification service, extra rows, keyboard detection, a floating overlay or another viewport-positioning mechanism. Extend the existing viewport regression to verify status visibility above results, stable row position and retained search focus during keyboard-sized and panned viewports.
+
+Actual clipboard contents and continuous typing are verified in the Chromium touch test. The WebKit viewport test requires real tap activation and visible copy feedback as well as retained focus. Cancelling pointerdown suppressed tap activation in WebKit; focus preservation now cancels only the default mousedown focus transfer. Accessibility reference: [W3C role=status guidance](https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA22.html).

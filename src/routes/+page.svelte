@@ -118,18 +118,13 @@
   }
 
   function preserveSearchFocus(event) {
-    if (
-      document.activeElement !== searchRef ||
-      !event.isPrimary ||
-      event.button !== 0
-    )
-      return;
+    if (document.activeElement !== searchRef || event.button !== 0) return;
     if (
       event.target instanceof Element &&
       (event.target === searchRef || event.target.closest('.close-search'))
     )
       return;
-    // Prevent the browser's pointer focus transfer, before blur can dismiss the keyboard.
+    // Cancel only the mouse focus transfer: cancelling pointerdown can suppress Safari taps.
     // Click activation and touch scrolling remain available.
     if (
       mobileSearchOpen ||
@@ -227,7 +222,7 @@
     window.visualViewport?.addEventListener('resize', updateViewport);
     window.visualViewport?.addEventListener('scroll', updateViewport);
     window.addEventListener('resize', updateViewport);
-    window.addEventListener('pointerdown', preserveSearchFocus, true);
+    window.addEventListener('mousedown', preserveSearchFocus, true);
     const mobile = matchMedia(
       '(max-width: 600px), (hover: none) and (pointer: coarse)',
     );
@@ -245,7 +240,7 @@
       window.visualViewport?.removeEventListener('resize', updateViewport);
       window.visualViewport?.removeEventListener('scroll', updateViewport);
       window.removeEventListener('resize', updateViewport);
-      window.removeEventListener('pointerdown', preserveSearchFocus, true);
+      window.removeEventListener('mousedown', preserveSearchFocus, true);
       clearTimeout(copyTimer);
       clearTimeout(scrollTimer);
     };
@@ -379,25 +374,44 @@
           >{browsing ? 'Hide categories' : 'Browse categories'}
           <span aria-hidden="true">{browsing ? '⌃' : '⌄'}</span></a
         >
-        <span class="byline"
-          >made with <span class="heart" role="img" aria-label="love">♥</span>
-          in Berlin
-          <svg
-            class="berlin-bear"
-            viewBox="0 0 28 36"
-            role="img"
-            aria-label="Berlin bear"
+        <div class="feedback" class:has-message={!!copied || copyFailed}>
+          <span class="byline"
+            >made with <span class="heart" role="img" aria-label="love">♥</span
+            >
+            in Berlin
+            <svg
+              class="berlin-bear"
+              viewBox="0 0 28 36"
+              role="img"
+              aria-label="Berlin bear"
+            >
+              <g fill="currentColor">
+                <circle cx="12" cy="4" r="2.5" /><circle
+                  cx="17"
+                  cy="5"
+                  r="2.5"
+                />
+                <path d="M10 4c-3 0-5 2-5 4H2v4h7l2 3 7-2V8c0-3-3-4-8-4Z" />
+                <path
+                  d="M11 12c-3 3-4 8-3 12l-4 7 4 2 6-8 1 7 6 1 1-3-4-1 1-8c3-3 2-7-1-10Z"
+                />
+                <path d="m11 14-6-3-2-5-3 1 2 8 8 4Zm5 0 7-6 3 1-5 8-4 2Z" />
+              </g>
+            </svg>
+          </span>
+          <span
+            class="copy-status"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
           >
-            <g fill="currentColor">
-              <circle cx="12" cy="4" r="2.5" /><circle cx="17" cy="5" r="2.5" />
-              <path d="M10 4c-3 0-5 2-5 4H2v4h7l2 3 7-2V8c0-3-3-4-8-4Z" />
-              <path
-                d="M11 12c-3 3-4 8-3 12l-4 7 4 2 6-8 1 7 6 1 1-3-4-1 1-8c3-3 2-7-1-10Z"
-              />
-              <path d="m11 14-6-3-2-5-3 1 2 8 8 4Zm5 0 7-6 3 1-5 8-4 2Z" />
-            </g>
-          </svg>
-        </span>
+            {#if copied}
+              <span aria-hidden="true">✓</span><span>{copied} copied</span>
+            {:else if copyFailed}
+              <span aria-hidden="true">!</span><span>Copy unavailable</span>
+            {/if}
+          </span>
+        </div>
       </div>
       {#if browsing}
         <nav id="categories" class="categories" aria-label="Emoji categories">
@@ -488,14 +502,4 @@
       rel="noreferrer">GitHub</a
     >
   </footer>
-</div>
-<div
-  class="flash"
-  role="status"
-  aria-live="polite"
-  hidden={!copied && !copyFailed}
->
-  {copyFailed ? 'Copy unavailable. Please try again.' : `${copied} copied`}<span
-    aria-hidden="true">✓</span
-  >
 </div>

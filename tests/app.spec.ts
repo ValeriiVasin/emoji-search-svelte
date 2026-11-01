@@ -432,6 +432,7 @@ test('keeps mobile top search stable after blur and repeated viewport panning', 
     await page.locator('.byline').tap();
     await expect(input).toBeFocused();
     await page.locator('[data-emoji]').first().tap();
+    await expect(page.getByRole('status')).toContainText(/copied|Copy unavailable/);
     await expect(input).toBeFocused();
     for (const top of [170, 90, 0]) {
       await input.evaluate((el) => el.blur());
@@ -439,6 +440,19 @@ test('keeps mobile top search stable after blur and repeated viewport panning', 
       await input.tap();
       await expect(input).toBeFocused();
       await page.evaluate(() => window.setKeyboardViewport(340, 0, 'resize'));
+      await expect
+        .poll(() =>
+          page
+            .locator('.shell')
+            .evaluate((el) => el.getBoundingClientRect().height),
+        )
+        .toBe(340);
+      const firstEmoji = page.locator('[data-emoji]').first();
+      const beforeCopy = await firstEmoji.boundingBox();
+      await firstEmoji.tap();
+      const status = page.getByRole('status');
+      await expect(status).toContainText(/copied|Copy unavailable/);
+      // Pan after the real tap: the simulated offset is not a native WebKit viewport.
       await page.evaluate(
         (value) => window.setKeyboardViewport(340, value, 'scroll'),
         top,
@@ -450,6 +464,14 @@ test('keeps mobile top search stable after blur and repeated viewport panning', 
         })
         .toBeLessThan(2);
       await expect(input).toHaveValue('home');
+      const notice = await status.boundingBox();
+      expect(notice.y).toBeGreaterThanOrEqual(top + 64);
+      expect(notice.y + notice.height).toBeLessThanOrEqual(beforeCopy.y + top);
+      expect(notice.x).toBeGreaterThanOrEqual(0);
+      expect(notice.x + notice.width).toBeLessThanOrEqual(390);
+      expect(notice.height).toBeLessThanOrEqual(28);
+      expect((await firstEmoji.boundingBox()).y).toBe(beforeCopy.y + top);
+      await expect(input).toBeFocused();
       await expect
         .poll(() =>
           page
