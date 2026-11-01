@@ -371,8 +371,16 @@
           href={href(-1, query, !browsing)}
           aria-expanded={browsing}
           aria-controls="categories"
-          >{browsing ? 'Hide categories' : 'Browse categories'}
-          <span aria-hidden="true">{browsing ? '⌃' : '⌄'}</span></a
+          ><span class="browse-label"
+            >Categories
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg
+            >
+          </span></a
         >
         <div class="feedback" class:has-message={!!copied || copyFailed}>
           <span class="byline"
@@ -416,22 +424,24 @@
       {#if browsing}
         <nav id="categories" class="categories" aria-label="Emoji categories">
           <a href={href(-1)} aria-current={group < 0 ? 'page' : undefined}
-            >All emoji</a
+            ><span>All emoji</span></a
           >
           {#each initial.groups as name, index}<a
               href={href(index)}
               aria-current={group === index ? 'page' : undefined}
-              >{[
-                'Smileys',
-                'People',
-                'Nature',
-                'Food',
-                'Travel',
-                'Activities',
-                'Objects',
-                'Symbols',
-                'Flags',
-              ][index]}</a
+              ><span
+                >{[
+                  'Smileys',
+                  'People',
+                  'Nature',
+                  'Food',
+                  'Travel',
+                  'Activities',
+                  'Objects',
+                  'Symbols',
+                  'Flags',
+                ][index]}</span
+              ></a
             >{/each}
         </nav>
       {/if}

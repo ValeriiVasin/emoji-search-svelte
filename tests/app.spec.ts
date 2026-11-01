@@ -38,7 +38,7 @@ test.describe('emoji search', () => {
   }) => {
     await page.getByRole('searchbox').fill('smile');
     await expect(page).toHaveURL('/?q=smile');
-    await page.getByRole('link', { name: 'Browse categories' }).click();
+    await page.getByRole('link', { name: 'Categories', exact: true }).click();
     await page.getByRole('link', { name: 'People', exact: true }).click();
     await expect(page).toHaveURL(/group=People/);
     await page.goBack();
@@ -152,7 +152,7 @@ test.describe('emoji search', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 320, height: 740 });
-    await page.getByRole('link', { name: 'Browse categories' }).click();
+    await page.getByRole('link', { name: 'Categories', exact: true }).click();
     const categories = page.getByRole('navigation', {
       name: 'Emoji categories',
     });
@@ -208,7 +208,7 @@ test.describe('emoji search', () => {
       .getByRole('region', { name: 'Emoji results' })
       .boundingBox();
     expect(resultBox.y + resultBox.height).toBeLessThanOrEqual(740);
-    await page.getByRole('link', { name: 'Hide categories' }).click();
+    await page.getByRole('link', { name: 'Categories', exact: true }).click();
     await expect(
       page.getByRole('navigation', { name: 'Emoji categories' }),
     ).toHaveCount(0);
@@ -333,7 +333,7 @@ test('mobile search opens only on a tap and keeps its query after collapsing', a
     });
     await page.locator('.byline').tap();
     await expect(input).toBeFocused();
-    await page.getByRole('link', { name: 'Browse categories' }).tap();
+    await page.getByRole('link', { name: 'Categories', exact: true }).tap();
     await expect(
       page.getByRole('navigation', { name: 'Emoji categories' }),
     ).toBeVisible();
@@ -343,7 +343,7 @@ test('mobile search opens only on a tap and keeps its query after collapsing', a
       page.getByRole('link', { name: 'Nature', exact: true }),
     ).toHaveAttribute('aria-current', 'page');
     await expect(input).toBeFocused();
-    await page.getByRole('link', { name: 'Hide categories' }).tap();
+    await page.getByRole('link', { name: 'Categories', exact: true }).tap();
     await expect(
       page.getByRole('navigation', { name: 'Emoji categories' }),
     ).toHaveCount(0);
@@ -432,7 +432,9 @@ test('keeps mobile top search stable after blur and repeated viewport panning', 
     await page.locator('.byline').tap();
     await expect(input).toBeFocused();
     await page.locator('[data-emoji]').first().tap();
-    await expect(page.getByRole('status')).toContainText(/copied|Copy unavailable/);
+    await expect(page.getByRole('status')).toContainText(
+      /copied|Copy unavailable/,
+    );
     await expect(input).toBeFocused();
     for (const top of [170, 90, 0]) {
       await input.evaluate((el) => el.blur());

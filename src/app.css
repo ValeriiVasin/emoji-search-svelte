@@ -138,28 +138,44 @@ input::-webkit-search-cancel-button {
 .categories {
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
-  border-bottom: 1px solid var(--line);
 }
 .categories a {
   display: flex;
   align-items: center;
   justify-content: center;
-  white-space: nowrap;
+  min-width: 0;
   min-height: 44px;
-  padding: 0 4px;
-  border-bottom: 2px solid transparent;
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.35;
-  color: var(--muted);
+  white-space: nowrap;
+  border-radius: 8px;
+}
+.categories a > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 2px;
+  border: 1px solid transparent;
+  border-radius: 8px;
 }
 .categories a:hover {
-  color: var(--ink);
   text-decoration: none;
+}
+.categories a:hover > span {
+  color: var(--ink);
   background: var(--hover);
 }
-.categories a[aria-current] {
+.categories a[aria-current] > span {
   color: var(--ink);
-  border-bottom-color: var(--ink);
+  background: var(--hover);
+  border-color: var(--line);
+  font-weight: 500;
+}
+.categories a:active > span {
+  background: var(--line);
 }
 .results-heading {
   display: flex;
@@ -382,10 +398,41 @@ main,
 .browse-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   min-height: 44px;
+  border-radius: 999px;
+  color: var(--ink);
   font-size: 12px;
-  color: var(--muted);
+}
+.browse-toggle:hover {
+  text-decoration: none;
+}
+.browse-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.browse-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+.browse-toggle:hover .browse-label,
+.browse-toggle[aria-expanded='true'] .browse-label {
+  background: var(--hover);
+}
+.browse-toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.browse-toggle:active .browse-label {
+  background: var(--line);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .browse-toggle svg {
+    transition: transform 140ms ease;
+  }
 }
 
 @media (max-width: 800px) {
@@ -398,9 +445,6 @@ main,
     --columns: 6;
     --cell-height: 54px;
     --gap: 4px;
-  }
-  .browse-toggle {
-    font-size: 11px;
   }
 }
 @media (max-width: 359px) {
