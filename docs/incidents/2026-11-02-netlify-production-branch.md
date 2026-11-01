@@ -1,6 +1,6 @@
 # Netlify production followed the retired branch
 
-Date: 2026-11-02. Status: production branch/build settings corrected; initial publish verified.
+Date: 2026-11-02. Status: resolved; Git-triggered production publishing and smoke checks verified.
 
 ## Evidence
 
@@ -16,4 +16,4 @@ Production smoke testing also exposed a very early mobile tap before hydration a
 
 ## Verification
 
-Require CI for the follow-up change, observe a Git-triggered Netlify deploy for its exact merged SHA, compare the published CSS with the reviewed build, and smoke-test production search, copying, categories and URL restoration. Physical keyboard animation remains a manual-device limitation.
+The follow-up passed CI and triggered a Netlify deploy automatically on merge. The published main SHA in Netlify matched the merged code, and the HTML referenced CSS with the reviewed build’s SHA-256. Production desktop/mobile smoke checks passed search, actual clipboard contents, continued typing, category navigation and restored URL context. Reuse these identity and behavior checks for future releases. Physical keyboard animation remains a manual-device validation limit, not an unresolved deployment blocker.
