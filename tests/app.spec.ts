@@ -71,6 +71,7 @@ test.describe('emoji search', () => {
     await expect
       .poll(() => page.evaluate(() => navigator.clipboard.readText()))
       .toBe('💩');
+    await expect(page.getByRole('searchbox')).toBeFocused();
     await page.evaluate(() => {
       Object.defineProperty(navigator.clipboard, 'writeText', {
         value: () => Promise.reject(new Error('denied')),
@@ -78,6 +79,7 @@ test.describe('emoji search', () => {
     });
     await page.locator('[data-emoji="💩"]').click();
     await expect(page.getByRole('status')).toContainText('Copy unavailable');
+    await expect(page.getByRole('searchbox')).toBeFocused();
   });
 
   test('restores shared searches and includes Unicode 18 additions', async ({
@@ -218,10 +220,14 @@ test.describe('emoji search', () => {
         ),
       )
       .toBe(true);
-    const shortResults = await page
-      .getByRole('region', { name: 'Emoji results' })
-      .boundingBox();
-    expect(shortResults.y + shortResults.height).toBeLessThanOrEqual(400);
+    await expect
+      .poll(async () => {
+        const box = await page
+          .getByRole('region', { name: 'Emoji results' })
+          .boundingBox();
+        return box.y + box.height;
+      })
+      .toBeLessThanOrEqual(400);
     expect(await page.locator('[data-emoji]').count()).toBeLessThan(100);
     const size = await page.locator('[data-emoji]').first().boundingBox();
     expect(size.width).toBeGreaterThanOrEqual(44);
@@ -319,14 +325,44 @@ test('mobile search opens only on a tap and keeps its query after collapsing', a
     await launcher.tap();
     const input = page.getByRole('searchbox');
     await expect(input).toBeFocused();
+    await input.evaluate((el) => {
+      el.dataset.blurs = '0';
+      el.addEventListener('blur', () => {
+        el.dataset.blurs = String(Number(el.dataset.blurs) + 1);
+      });
+    });
+    await page.locator('.byline').tap();
+    await expect(input).toBeFocused();
+    await page.getByRole('link', { name: 'Browse categories' }).tap();
+    await expect(
+      page.getByRole('navigation', { name: 'Emoji categories' }),
+    ).toBeVisible();
+    await expect(input).toBeFocused();
+    await page.getByRole('link', { name: 'Nature', exact: true }).tap();
+    await expect(
+      page.getByRole('link', { name: 'Nature', exact: true }),
+    ).toHaveAttribute('aria-current', 'page');
+    await expect(input).toBeFocused();
+    await page.getByRole('link', { name: 'Hide categories' }).tap();
+    await expect(
+      page.getByRole('navigation', { name: 'Emoji categories' }),
+    ).toHaveCount(0);
     await input.fill('poo');
     await expect(page.locator('[data-emoji="💩"]')).toBeVisible();
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.locator('[data-emoji="💩"]').tap();
     await expect(page.getByRole('status')).toContainText('💩 copied');
-    await expect(input).toHaveCount(0);
-    await launcher.tap();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      '💩',
+    );
     await expect(input).toBeFocused();
+    await page.keyboard.type('p');
+    await expect(input).toHaveValue('poop');
+    await page.keyboard.press('Backspace');
+    await expect(input).toHaveValue('poo');
+    await page.locator('.results').tap({ position: { x: 180, y: 180 } });
+    await expect(input).toBeFocused();
+    await expect(input).toHaveAttribute('data-blurs', '0');
     await page.getByRole('button', { name: 'Close search', exact: true }).tap();
     await expect(input).toHaveCount(0);
     await expect(
@@ -393,6 +429,10 @@ test('keeps mobile top search stable after blur and repeated viewport panning', 
     await page.getByRole('button', { name: 'Open search', exact: true }).tap();
     const input = page.getByRole('searchbox');
     await input.fill('home');
+    await page.locator('.byline').tap();
+    await expect(input).toBeFocused();
+    await page.locator('[data-emoji]').first().tap();
+    await expect(input).toBeFocused();
     for (const top of [170, 90, 0]) {
       await input.evaluate((el) => el.blur());
       await page.evaluate(() => window.setKeyboardViewport(700, 0, 'resize'));

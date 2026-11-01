@@ -117,6 +117,27 @@
     searchRef.focus({ preventScroll: true });
   }
 
+  function preserveSearchFocus(event) {
+    if (
+      document.activeElement !== searchRef ||
+      !event.isPrimary ||
+      event.button !== 0
+    )
+      return;
+    if (
+      event.target instanceof Element &&
+      (event.target === searchRef || event.target.closest('.close-search'))
+    )
+      return;
+    // Prevent the browser's pointer focus transfer, before blur can dismiss the keyboard.
+    // Click activation and touch scrolling remain available.
+    if (
+      mobileSearchOpen ||
+      (event.target instanceof Element && event.target.closest('[data-emoji]'))
+    )
+      event.preventDefault();
+  }
+
   function closeSearch() {
     flushSync(() => {
       mobileSearchOpen = false;
@@ -179,7 +200,6 @@
       copied = '';
       copyFailed = true;
     }
-    if (mobileSearchOpen) closeSearch();
     copyTimer = setTimeout(() => {
       copied = '';
       copyFailed = false;
@@ -207,6 +227,7 @@
     window.visualViewport?.addEventListener('resize', updateViewport);
     window.visualViewport?.addEventListener('scroll', updateViewport);
     window.addEventListener('resize', updateViewport);
+    window.addEventListener('pointerdown', preserveSearchFocus, true);
     const mobile = matchMedia(
       '(max-width: 600px), (hover: none) and (pointer: coarse)',
     );
@@ -224,6 +245,7 @@
       window.visualViewport?.removeEventListener('resize', updateViewport);
       window.visualViewport?.removeEventListener('scroll', updateViewport);
       window.removeEventListener('resize', updateViewport);
+      window.removeEventListener('pointerdown', preserveSearchFocus, true);
       clearTimeout(copyTimer);
       clearTimeout(scrollTimer);
     };
@@ -250,6 +272,7 @@
 
 <div
   class="shell"
+  data-sveltekit-reset={mobileSearchOpen ? 'false' : undefined}
   style:height={viewportHeight ? `${viewportHeight}px` : undefined}
   style:top={`${viewportTop}px`}
 >
