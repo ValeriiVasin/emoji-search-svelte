@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "prepare": "svelte-kit sync",
     "test": "playwright test",
-    "ci": "playwright test"
+    "ci": "playwright test",
+    "update:emojis": "node scripts/update-emojis.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
@@ -22,9 +23,7 @@
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "svelte": "^5.57.3",
     "typescript": "^6.0.3",
-    "vite": "^8.3.5"
-  },
-  "dependencies": {
+    "vite": "^8.3.5",
     "emojilib": "^4.0.3"
   },
   "imports": {

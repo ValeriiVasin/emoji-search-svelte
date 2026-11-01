@@ -1,34 +1,16 @@
-import emojiLibrary from 'emojilib';
-
-function prepareEmojiIndex(source) {
-  return Object.entries(source).map(([char, keywords]) => ({
-    char,
-    keywords: keywords.join('/')
-  }));
-}
-
-export const emojis = prepareEmojiIndex(emojiLibrary);
-
-const ALL_SET = new Set(emojis.map((emoji) => emoji.char));
-
 export function normalizeQuery(value) {
-  return value.replace(/\s+/g, '_').trim();
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, ' ')
+    .slice(0, 100);
 }
 
-export function createFilteredSet(text) {
-  const normalized = normalizeQuery(text);
-
-  if (!normalized) {
-    return ALL_SET;
-  }
-
-  const visible = new Set();
-
-  for (const emoji of emojis) {
-    if (emoji.keywords.includes(normalized)) {
-      visible.add(emoji.char);
-    }
-  }
-
-  return visible;
+export function filterEmojis(catalog, query, group) {
+  const words = normalizeQuery(query).split(' ').filter(Boolean);
+  return catalog.filter(
+    (emoji) =>
+      (group < 0 || emoji[2] === group) &&
+      words.every((word) => emoji[3].includes(word)),
+  );
 }
