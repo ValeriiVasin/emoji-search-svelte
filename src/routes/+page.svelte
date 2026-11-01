@@ -1,7 +1,7 @@
 <script>
-  import { browser } from '$app/environment';
+  import { browser } from '$app/env';
   import { onMount } from 'svelte';
-  import { createFilteredSet, emojis, normalizeQuery } from '$lib/emoji';
+  import { createFilteredSet, emojis, normalizeQuery } from '#lib/emoji.js';
 
   let searchRef;
   let flashRef;
