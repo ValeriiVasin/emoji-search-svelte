@@ -367,11 +367,9 @@ test('mobile search opens only on a tap and keeps its query after collapsing', a
     await expect(input).toHaveCount(0);
     await expect(
       page.getByRole('button', { name: 'Edit search: poo', exact: true }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await expect(page).toHaveURL('http://127.0.0.1:4173/?q=poo');
-    await page
-      .getByRole('button', { name: 'Edit search: poo', exact: true })
-      .tap();
+    await launcher.tap();
     await expect(input).toBeFocused();
     await expect(input).toHaveValue('poo');
     await input.press('Escape');
@@ -558,16 +556,12 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
   const home = page.getByRole('link', {
     name: 'Find your emoji — show all emoji',
   });
-  const edit = page.getByRole('button', { name: 'Edit search: face' });
   await expect(home).toBeVisible();
-  await expect(edit).toBeVisible();
   const homeBox = await home.boundingBox();
-  const editBox = await edit.boundingBox();
   const launcherBox = await page
     .getByRole('button', { name: 'Open search' })
     .boundingBox();
-  expect(homeBox.x + homeBox.width).toBeLessThanOrEqual(editBox.x);
-  expect(editBox.x + editBox.width).toBeLessThanOrEqual(launcherBox.x);
+  expect(homeBox.x + homeBox.width).toBeLessThanOrEqual(launcherBox.x);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   const waves = page.locator('.emoji-finder-waves');
   const firstTransform = await waves.evaluate(
@@ -600,9 +594,8 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
   await expect
     .poll(() => page.locator('.results').evaluate((el) => el.scrollTop))
     .toBe(0);
-  await expect(edit).toHaveCount(0);
   await page.goBack();
-  await expect(edit).toBeVisible();
+  await expect(page).toHaveURL(/q=face/);
   expect(new URL(page.url()).searchParams.get('group')).toBe(
     'Smileys & Emotion',
   );
@@ -611,6 +604,7 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
     .toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Open search' }).tap();
   await expect(page.getByRole('searchbox')).toBeFocused();
+  await expect(page.getByRole('searchbox')).toHaveValue('face');
   await expect(home).toHaveCount(0);
   await expect
     .poll(() =>
@@ -623,6 +617,5 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
     .toBe(false);
   await page.getByRole('button', { name: 'Close search' }).tap();
   await expect(home).toBeVisible();
-  await expect(edit).toBeVisible();
   await context.close();
 });

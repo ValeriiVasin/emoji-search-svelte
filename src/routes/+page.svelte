@@ -291,11 +291,7 @@
   <main>
     <h1 class="sr-only">Emoji Search</h1>
     <section class="browser" aria-label="Emoji search">
-      <div
-        class="search-panel"
-        class:mobile-open={mobileSearchOpen}
-        class:has-query={Boolean(query)}
-      >
+      <div class="search-panel" class:mobile-open={mobileSearchOpen}>
         <a
           class="home-logo"
           href="/"
@@ -305,15 +301,6 @@
           tabindex={mobileSearchOpen ? -1 : 0}
           onclick={resetView}>{@html logo}</a
         >
-        {#if query && !mobileSearchOpen}
-          <button
-            type="button"
-            class="mobile-query"
-            onclick={openSearch}
-            aria-label={`Edit search: ${query}`}>{query}</button
-          >
-        {/if}
-
         <div class="search-wrap" id="search-field">
           <svg
             viewBox="0 0 24 24"

@@ -465,8 +465,7 @@ main,
 /* Search stays in the top toolbar on both desktop and mobile. */
 .home-logo,
 .search-launcher,
-.close-search,
-.mobile-query {
+.close-search {
   display: none;
 }
 @media (max-width: 600px), (hover: none) and (pointer: coarse) {
@@ -499,9 +498,6 @@ main,
     display: block;
     width: 100%;
     height: 52px;
-  }
-  .search-panel.has-query .home-logo {
-    width: 164px;
   }
   .home-logo:active {
     opacity: 0.65;
@@ -575,25 +571,6 @@ main,
   .search-launcher:active,
   .close-search:active {
     background: var(--line);
-  }
-  .mobile-query {
-    position: absolute;
-    left: 176px;
-    top: 0;
-    right: 64px;
-    display: block;
-    height: 52px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    text-align: left;
-    font-size: 14px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
-  .mobile-query span {
-    color: var(--muted);
   }
 }
 @media (prefers-reduced-motion: no-preference) {
