@@ -39,3 +39,8 @@ Copy confirmation appears as a compact status in the existing row below search, 
 ## Production
 
 Netlify project `emo` publishes [emo.netlify.app](https://emo.netlify.app/) from `main`. The committed [Netlify configuration](netlify.toml) builds and publishes the static `build/` output; `.nvmrc` selects Node 26. Netlify automatic builds and publishing must stay enabled, with the production branch set to `main` in project settings. See [the deployment incident](docs/incidents/2026-11-02-netlify-production-branch.md).
+
+
+## Third-party license notices
+
+The published build must include copyright and license notices for redistributed libraries and generated emoji data. Visible library credits in the app are optional; footer links alone do not carry the full notices. Vite's built-in license output produces `/third-party-licenses.txt` for bundled software. `/data-licenses.txt` includes emojilib's MIT notice and Unicode License V3 for the generated search catalog. Both are served as separate static files, without importing or fetching them on initial load. When updating emojilib or Unicode data, refresh the corresponding data notice from its source license.
