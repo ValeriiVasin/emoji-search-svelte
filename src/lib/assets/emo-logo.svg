@@ -1,0 +1,36 @@
+<svg class="emo-wordmark" xmlns="http://www.w3.org/2000/svg" viewBox="-2 0 134 52" preserveAspectRatio="xMinYMid" fill="none" aria-hidden="true">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .emo-wordmark {
+        --emo-sun: #d99500;
+        --emo-orange: #f07126;
+        --emo-pink: #ec3276;
+        --emo-orchid: #b53de0;
+        --emo-blue: #177edc;
+        --emo-sea: #009ba8;
+      }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .emoji-finder-waves { animation: emoji-finder-tide 18s linear infinite; }
+    }
+    @keyframes emoji-finder-tide {
+      to { transform: translateX(-96px); }
+    }
+  </style>
+  <defs>
+    <mask id="emoji-finder-letters" x="40" y="3" width="134" height="47" maskUnits="userSpaceOnUse">
+      <text x="42" y="42" fill="white" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="52" font-weight="800" letter-spacing="-.5" textLength="128" lengthAdjust="spacingAndGlyphs">emo.</text>
+    </mask>
+  </defs>
+  <g mask="url(#emoji-finder-letters)" transform="translate(-42)">
+    <path fill="var(--emo-sun, #ffd65a)" d="M40 3h134v47H40z"/>
+    <g class="emoji-finder-waves">
+      <path fill="var(--emo-orange, #ff8b42)" d="M-52 20c16-6 32-6 48 0s32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0v30H-52z"/>
+      <path fill="var(--emo-pink, #ff427c)" d="M-52 24c16-6 32-6 48 0s32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0v26H-52z"/>
+      <path fill="var(--emo-orchid, #ce49ee)" d="M-52 28c16-6 32-6 48 0s32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0v22H-52z"/>
+      <path fill="#6742f5" d="M-52 32c16-6 32-6 48 0s32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0v18H-52z"/>
+      <path fill="var(--emo-blue, #238cf4)" d="M-52 36c16-6 32-6 48 0s32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0v14H-52z"/>
+      <path fill="var(--emo-sea, #39d3d6)" d="M-52 40c16-6 32-6 48 0s32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0 32-6 48 0 32 6 48 0v10H-52z"/>
+    </g>
+  </g>
+</svg>

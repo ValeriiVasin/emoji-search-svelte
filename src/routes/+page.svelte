@@ -3,6 +3,7 @@
   import { browser } from '$app/env';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import logo from '#lib/assets/emo-logo.svg?raw';
   import initial from '#lib/data/initial.json';
   import { filterEmojis, normalizeQuery } from '#lib/emoji.js';
 
@@ -97,6 +98,20 @@
     });
   });
 
+  function resetView(event) {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    clearTimeout(scrollTimer);
+    resultsRef.scrollTop = 0;
+    scrollTop = 0;
+  }
+
   function href(
     nextGroup = group,
     nextQuery = query,
@@ -129,7 +144,8 @@
     // Click activation and touch scrolling remain available.
     if (
       mobileSearchOpen ||
-      (event.target instanceof Element && event.target.closest('[data-emoji]'))
+      (event.target instanceof Element &&
+        event.target.closest('[data-emoji], [data-search-action]'))
     )
       event.preventDefault();
   }
@@ -277,16 +293,15 @@
     <h1 class="sr-only">Emoji Search</h1>
     <section class="browser" aria-label="Emoji search">
       <div class="search-panel" class:mobile-open={mobileSearchOpen}>
-        {#if query && !mobileSearchOpen}
-          <button
-            type="button"
-            class="mobile-query"
-            onclick={openSearch}
-            aria-label={`Edit search: ${query}`}
-            ><span>Search:</span> {query}</button
-          >
-        {/if}
-
+        <a
+          class="home-logo"
+          href="/"
+          aria-label="emo — show all emoji"
+          title="Reset search and categories"
+          aria-hidden={mobileSearchOpen}
+          tabindex={mobileSearchOpen ? -1 : 0}
+          onclick={resetView}>{@html logo}</a
+        >
         <div class="search-wrap" id="search-field">
           <svg
             viewBox="0 0 24 24"
@@ -496,10 +511,78 @@
           ></div>
         {:else}
           <div class="empty no-result">
-            <span aria-hidden="true">🔎</span>
-            <h3>No emoji found.</h3>
-            <p>Try a different word, like “happy”, “coffee” or “heart”.</p>
-            <a href="/">Explore all emoji <span aria-hidden="true">↗</span></a>
+            <svg
+              class="empty-illustration"
+              viewBox="0 0 64 64"
+              fill="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient
+                  id="empty-sunset"
+                  x1="34"
+                  y1="10"
+                  x2="54"
+                  y2="40"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stop-color="#ed9d24" /><stop
+                    offset=".5"
+                    stop-color="#e75992"
+                  /><stop offset="1" stop-color="#617bf0" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="29"
+                cy="33"
+                r="22"
+                fill="var(--hover)"
+                stroke="var(--line)"
+                stroke-width="1.5"
+              />
+              <path
+                d="M21 31h.01M36 31h.01"
+                stroke="currentColor"
+                stroke-width="3.5"
+                stroke-linecap="round"
+              />
+              <path
+                d="M23 43q6-4 12 0"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+              <circle
+                cx="41"
+                cy="23"
+                r="10"
+                stroke="url(#empty-sunset)"
+                stroke-width="2.5"
+              />
+              <path
+                d="m48.5 30.5 9 9"
+                stroke="url(#empty-sunset)"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
+            </svg>
+            <h3>No matches</h3>
+            <p>Try a mood, object or keyword.</p>
+            <div class="empty-suggestions" aria-label="Suggested searches">
+              {#each ['happy', 'coffee', 'heart'] as word}
+                <a
+                  href={href(-1, word, false)}
+                  data-search-action
+                  data-sveltekit-reset="false"><span>{word}</span></a
+                >
+              {/each}
+            </div>
+            <a
+              class="empty-reset"
+              href="/"
+              data-search-action
+              data-sveltekit-reset="false">Show all emoji</a
+            >
           </div>
         {/if}
       </div>

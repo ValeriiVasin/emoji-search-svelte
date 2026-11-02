@@ -4,5 +4,6 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [sveltekit({ adapter: adapter(), preprocess: vitePreprocess() })]
+  plugins: [sveltekit({ adapter: adapter(), preprocess: vitePreprocess() })],
+  build: { license: { fileName: 'third-party-licenses.txt' } }
 });

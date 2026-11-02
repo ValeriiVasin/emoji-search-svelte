@@ -148,6 +148,36 @@ test.describe('emoji search', () => {
     await expect.poll(() => results.evaluate((el) => el.scrollTop)).toBe(0);
   });
 
+  test('empty search suggestions reset categories and preserve focus and history', async ({
+    page,
+  }) => {
+    await page.getByRole('link', { name: 'Categories', exact: true }).click();
+    await page.getByRole('link', { name: 'Flags', exact: true }).click();
+    await expect(page).toHaveURL(/group=Flags/);
+    const input = page.getByRole('searchbox');
+    await input.fill('no_such_emoji_123456789');
+    await expect(
+      page.getByRole('heading', { name: 'No matches', exact: true }),
+    ).toBeVisible();
+    await page.getByRole('link', { name: 'happy', exact: true }).click();
+    await expect(page).toHaveURL('/?q=happy');
+    await expect(input).toHaveValue('happy');
+    await expect(input).toBeFocused();
+    await expect(page.locator('[data-emoji]').first()).toBeVisible();
+    await page.goBack();
+    await expect(
+      page.getByRole('heading', { name: 'No matches', exact: true }),
+    ).toBeVisible();
+    expect(new URL(page.url()).searchParams.get('group')).toBe('Flags');
+    await input.focus();
+    await page
+      .getByRole('link', { name: 'Show all emoji', exact: true })
+      .click();
+    await expect(page).toHaveURL('/');
+    await expect(input).toBeFocused();
+    await expect(page.locator('[data-emoji="😀"]')).toBeVisible();
+  });
+
   test('adapts to mobile, system theme, empty results and clearing', async ({
     page,
   }) => {
@@ -190,6 +220,19 @@ test.describe('emoji search', () => {
     await expect(page.getByRole('searchbox')).toBeFocused();
     await page.getByRole('searchbox').fill('no_such_emoji_123456789');
     await expect(page.locator('.no-result')).toBeVisible();
+    const field = await page.locator('.search-wrap').boundingBox();
+    const lens = await page.locator('.search-wrap > svg').boundingBox();
+    const clear = await page
+      .getByRole('button', { name: 'Clear search' })
+      .boundingBox();
+    expect(
+      Math.abs(
+        lens.x +
+          lens.width / 2 -
+          field.x -
+          (field.x + field.width - clear.x - clear.width / 2),
+      ),
+    ).toBeLessThan(1);
     await expect(page.locator('[data-emoji]')).toHaveCount(0);
     await page.getByRole('button', { name: 'Clear search' }).click();
     await expect(page).toHaveURL('/?browse=1');
@@ -367,11 +410,9 @@ test('mobile search opens only on a tap and keeps its query after collapsing', a
     await expect(input).toHaveCount(0);
     await expect(
       page.getByRole('button', { name: 'Edit search: poo', exact: true }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await expect(page).toHaveURL('http://127.0.0.1:4173/?q=poo');
-    await page
-      .getByRole('button', { name: 'Edit search: poo', exact: true })
-      .tap();
+    await launcher.tap();
     await expect(input).toBeFocused();
     await expect(input).toHaveValue('poo');
     await input.press('Escape');
@@ -485,6 +526,21 @@ test('keeps mobile top search stable after blur and repeated viewport panning', 
         await page.evaluate(() => document.scrollingElement.scrollTop),
       ).toBe(0);
     }
+    await input.fill('no_such_emoji_123456789');
+    await page.evaluate(() => window.setKeyboardViewport(320, 0, 'resize'));
+    await expect(
+      page.getByRole('heading', { name: 'No matches', exact: true }),
+    ).toBeVisible();
+    const reset = page.getByRole('link', {
+      name: 'Show all emoji',
+      exact: true,
+    });
+    await expect
+      .poll(() => reset.boundingBox().then((box) => box.y + box.height))
+      .toBeLessThanOrEqual(320);
+    await page.getByRole('link', { name: 'happy', exact: true }).tap();
+    await expect(input).toHaveValue('happy');
+    await expect(input).toBeFocused();
     await page.getByRole('button', { name: 'Close search', exact: true }).tap();
     await page.evaluate(() => window.setKeyboardViewport(700, 0, 'resize'));
     await expect(
@@ -537,4 +593,89 @@ test('enables mobile actions only after hydration connects their handlers', asyn
     release();
     await context.close();
   }
+});
+
+test('mobile home mark resets filters and scroll without opening the keyboard', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 320, height: 600 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  const page = await context.newPage();
+  const params = new URLSearchParams({
+    q: 'face',
+    group: 'Smileys & Emotion',
+    browse: '1',
+    at: '12',
+  });
+  await page.goto(`/?${params}`);
+  const home = page.getByRole('link', {
+    name: 'emo — show all emoji',
+  });
+  await expect(home).toBeVisible();
+  const homeBox = await home.boundingBox();
+  const launcherBox = await page
+    .getByRole('button', { name: 'Open search' })
+    .boundingBox();
+  expect(homeBox.x + homeBox.width).toBeLessThanOrEqual(launcherBox.x);
+  const panelBox = await page.locator('.search-panel').boundingBox();
+  expect(Math.abs(homeBox.x - panelBox.x)).toBeLessThan(1);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  const waves = page.locator('.emoji-finder-waves');
+  const firstTransform = await waves.evaluate(
+    (el) => getComputedStyle(el).transform,
+  );
+  await expect
+    .poll(() => waves.evaluate((el) => getComputedStyle(el).transform))
+    .not.toBe(firstTransform);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect
+    .poll(() =>
+      waves.evaluate((el) =>
+        el
+          .getAnimations()
+          .some((animation) => animation.playState === 'running'),
+      ),
+    )
+    .toBe(false);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await expect(home).toHaveAttribute('href', '/');
+  await expect
+    .poll(() => page.locator('.results').evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(0);
+  await home.tap();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(
+    page.getByRole('navigation', { name: 'Emoji categories' }),
+  ).toHaveCount(0);
+  await expect(page.getByRole('searchbox')).toHaveCount(0);
+  await expect
+    .poll(() => page.locator('.results').evaluate((el) => el.scrollTop))
+    .toBe(0);
+  await page.goBack();
+  await expect(page).toHaveURL(/q=face/);
+  expect(new URL(page.url()).searchParams.get('group')).toBe(
+    'Smileys & Emotion',
+  );
+  await expect
+    .poll(() => page.locator('.results').evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Open search' }).tap();
+  await expect(page.getByRole('searchbox')).toBeFocused();
+  await expect(page.getByRole('searchbox')).toHaveValue('face');
+  await expect(home).toHaveCount(0);
+  await expect
+    .poll(() =>
+      waves.evaluate((el) =>
+        el
+          .getAnimations()
+          .some((animation) => animation.playState === 'running'),
+      ),
+    )
+    .toBe(false);
+  await page.getByRole('button', { name: 'Close search' }).tap();
+  await expect(home).toBeVisible();
+  await context.close();
 });
