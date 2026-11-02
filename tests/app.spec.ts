@@ -556,7 +556,7 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
   });
   await page.goto(`/?${params}`);
   const home = page.getByRole('link', {
-    name: 'Emoji finder — show all emoji',
+    name: 'Find your emoji — show all emoji',
   });
   const edit = page.getByRole('button', { name: 'Edit search: face' });
   await expect(home).toBeVisible();

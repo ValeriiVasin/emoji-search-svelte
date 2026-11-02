@@ -299,7 +299,7 @@
         <a
           class="home-logo"
           href="/"
-          aria-label="Emoji finder — show all emoji"
+          aria-label="Find your emoji — show all emoji"
           title="Reset search and categories"
           aria-hidden={mobileSearchOpen}
           tabindex={mobileSearchOpen ? -1 : 0}
