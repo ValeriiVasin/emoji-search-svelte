@@ -72,4 +72,15 @@ Use a single inline SVG with sunset-to-sea waves inside stationary letters. Slow
 
 Closing search keeps the query inside the field and URL, indicated by the launcher dot; do not duplicate the query beside the mark or resize the logo. The existing mobile checks cover left alignment, no overlap at 320px, navigation/reset, retained input text, reduced motion and pausing hidden animation. Light mode uses deeper gold and turquoise for legibility on white; dark mode retains the bright sunset palette. Visual checks cover both themes at 320 and 390px.
 
-Size check against main 161039a: the inline SVG is 2,095 bytes raw / 815 bytes gzip. Comparing local production output adds approximately 1,847 gzip bytes in total: HTML +775, CSS +34, client JavaScript +1038. The unchanged deferred catalog and source maps are excluded. These are compressed-file estimates, not measured hosting transfer sizes. Keep the mark inline for immediate display without an extra request.
+Wordmark-only size check against main 161039a: the inline SVG is 2,095 bytes raw / 815 bytes gzip. Comparing local production output adds approximately 1,847 gzip bytes in total: HTML +775, CSS +34, client JavaScript +1038. The unchanged deferred catalog and source maps are excluded. These are compressed-file estimates, not measured hosting transfer sizes. Keep the mark inline for immediate display without an extra request.
+
+
+## Empty results and spacing
+
+Evidence: the mobile no-results screen used a large platform-dependent magnifier, a long sentence and a generic link. Search's leading icon and clear action had unequal edge offsets. The user requested a compact empty state matching the app and a spacing audit.
+
+Outcome: a small custom SVG face, concise copy, real search-example links and a quiet reset link. Examples clear an incompatible category, preserve active search focus and support Back. Keep the system themes, existing toolbar height, category hit areas and virtualized collection. Use symmetric 16px/4px search insets to align the leading icon and 44px clear action, equal results scrollbar gutters and matching 32px category-pill surfaces inside 44px hit areas.
+
+The empty layout responds to the actual results-region height through CSS container queries, because the iOS visual viewport can shrink without changing layout media queries. Short regions hide only the decorative illustration and, when necessary, supporting copy, keeping actions usable. No image request, animation, dependency or additional keyboard state. Verify example navigation/focus, short visual-viewport geometry and both themes at mobile and desktop sizes.
+
+Verified locally: the 13 application scenarios pass, including search examples, Back and narrow-screen spacing; the example-navigation and simulated visual-viewport checks also pass in WebKit. A separate geometry review passed 12 light/dark and viewport combinations, including 320px, short regions with expanded categories and touch landscape. Native iPhone keyboard animation still requires device review.
