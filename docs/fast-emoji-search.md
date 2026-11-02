@@ -77,4 +77,4 @@ The compact handmade e closed up at its display size. Replace the shorthand with
 
 The initial wordmark uses the available space beside search, with lettering almost twice the previous display size. It scales down on 320px screens; a saved query does not shrink or reposition the mark. Toolbar height stays 52px.
 
-The user-facing phrase is “find your emoji”, centered in the available toolbar space, without an icon.
+The user-facing phrase is “find your emoji”, centered on the entire toolbar, without an icon. Reserve equal space on each side so the search button does not shift the visual center; narrow screens scale the lettering to keep it clear of the button.

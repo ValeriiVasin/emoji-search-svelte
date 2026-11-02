@@ -562,6 +562,10 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
     .getByRole('button', { name: 'Open search' })
     .boundingBox();
   expect(homeBox.x + homeBox.width).toBeLessThanOrEqual(launcherBox.x);
+  const panelBox = await page.locator('.search-panel').boundingBox();
+  expect(
+    Math.abs(homeBox.x + homeBox.width / 2 - (panelBox.x + panelBox.width / 2)),
+  ).toBeLessThan(1);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   const waves = page.locator('.emoji-finder-waves');
   const firstTransform = await waves.evaluate(
