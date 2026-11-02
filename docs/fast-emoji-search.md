@@ -68,7 +68,7 @@ Production startup: keep JavaScript-only launcher/copy actions disabled until hy
 
 Problem: the collapsed mobile search toolbar leaves an empty area above the collection. The user requested the earlier peace-hand motif as a small SVG home mark. Keep the existing 52px toolbar and all result space; the logo disappears underneath expanded search, without moving content. A current query remains visible beside it. Clicking the real home link clears search/category/browse/scroll URL state, returns the collection to the top and leaves the mobile keyboard closed. Back restores the previous context.
 
-Use a single inline SVG asset with a warm yellow hand and bold lettering filled with sunset-to-sea waves, as requested in the user’s visual reference. Omit the sparkle that read as a plus sign. Keep the mark readable in both system themes. No hero, slogan, external font, image request or dependency. Verify reset/navigation and narrow-screen geometry using the existing production test setup; SVG paths themselves need no separate tests.
+Use a single inline SVG asset with bold lettering filled with sunset-to-sea waves, as requested in the user’s visual reference. Omit the sparkle that read as a plus sign. Keep the mark readable in both system themes. No hero, slogan, external font, image request or dependency. Verify reset/navigation and narrow-screen geometry using the existing production test setup; SVG paths themselves need no separate tests.
 
 
 ### Readable animated wordmark
@@ -77,4 +77,4 @@ The compact handmade e closed up at its display size. Replace the shorthand with
 
 The initial wordmark uses the available space beside search, with lettering almost twice the previous display size. It scales down on 320px screens; a saved query retains the compact mark and its own visible edit control. Toolbar height stays 52px.
 
-The user-facing phrase is “find your emoji”, with the peace hand after the text.
+The user-facing phrase is “find your emoji”, centered in the available toolbar space, without an icon.
