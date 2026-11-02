@@ -69,3 +69,8 @@ Production startup: keep JavaScript-only launcher/copy actions disabled until hy
 Problem: the collapsed mobile search toolbar leaves an empty area above the collection. The user requested the earlier peace-hand motif as a small SVG home mark. Keep the existing 52px toolbar and all result space; the logo disappears underneath expanded search, without moving content. A current query remains visible beside it. Clicking the real home link clears search/category/browse/scroll URL state, returns the collection to the top and leaves the mobile keyboard closed. Back restores the previous context.
 
 Use a single inline SVG asset with a warm yellow hand and bold lettering filled with sunset-to-sea waves, as requested in the user’s visual reference. Omit the sparkle that read as a plus sign. Keep the mark readable in both system themes. No hero, slogan, external font, image request or dependency. Verify reset/navigation and narrow-screen geometry using the existing production test setup; SVG paths themselves need no separate tests.
+
+
+### Readable animated wordmark
+
+The compact handmade e closed up at its display size. Replace the shorthand with “emoji finder” in bold system lettering inside the SVG mask, using no downloaded font. Keep the toolbar height and home-link reset behavior. A 164px mark and a query-only edit control fit beside the launcher at 320px. Animate only the repeating color-wave group with a slow CSS translation; the letter shapes stay still. Disable motion for the system reduced-motion preference and pause it while search covers the logo. No canvas, animation package or JavaScript frame loop. Extend the existing home-mark check for narrow geometry and motion preferences; these catch a covered query control or unwanted decorative motion.

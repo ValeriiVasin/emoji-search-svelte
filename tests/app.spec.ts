@@ -555,7 +555,9 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
     at: '12',
   });
   await page.goto(`/?${params}`);
-  const home = page.getByRole('link', { name: 'emo — show all emoji' });
+  const home = page.getByRole('link', {
+    name: 'Emoji finder — show all emoji',
+  });
   const edit = page.getByRole('button', { name: 'Edit search: face' });
   await expect(home).toBeVisible();
   await expect(edit).toBeVisible();
@@ -566,6 +568,25 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
     .boundingBox();
   expect(homeBox.x + homeBox.width).toBeLessThanOrEqual(editBox.x);
   expect(editBox.x + editBox.width).toBeLessThanOrEqual(launcherBox.x);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  const waves = page.locator('.emoji-finder-waves');
+  const firstTransform = await waves.evaluate(
+    (el) => getComputedStyle(el).transform,
+  );
+  await expect
+    .poll(() => waves.evaluate((el) => getComputedStyle(el).transform))
+    .not.toBe(firstTransform);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect
+    .poll(() =>
+      waves.evaluate((el) =>
+        el
+          .getAnimations()
+          .some((animation) => animation.playState === 'running'),
+      ),
+    )
+    .toBe(false);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await expect(home).toHaveAttribute('href', '/');
   await expect
     .poll(() => page.locator('.results').evaluate((el) => el.scrollTop))
@@ -591,6 +612,15 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
   await page.getByRole('button', { name: 'Open search' }).tap();
   await expect(page.getByRole('searchbox')).toBeFocused();
   await expect(home).toHaveCount(0);
+  await expect
+    .poll(() =>
+      waves.evaluate((el) =>
+        el
+          .getAnimations()
+          .some((animation) => animation.playState === 'running'),
+      ),
+    )
+    .toBe(false);
   await page.getByRole('button', { name: 'Close search' }).tap();
   await expect(home).toBeVisible();
   await expect(edit).toBeVisible();

@@ -295,7 +295,7 @@
         <a
           class="home-logo"
           href="/"
-          aria-label="emo — show all emoji"
+          aria-label="Emoji finder — show all emoji"
           title="Reset search and categories"
           aria-hidden={mobileSearchOpen}
           tabindex={mobileSearchOpen ? -1 : 0}
@@ -306,8 +306,7 @@
             type="button"
             class="mobile-query"
             onclick={openSearch}
-            aria-label={`Edit search: ${query}`}
-            ><span>Search:</span> {query}</button
+            aria-label={`Edit search: ${query}`}>{query}</button
           >
         {/if}
 

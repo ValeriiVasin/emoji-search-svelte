@@ -490,18 +490,21 @@ main,
     top: 4px;
     display: flex;
     align-items: center;
-    width: 128px;
+    width: 164px;
     height: 44px;
     color: var(--ink);
     border-radius: 10px;
   }
   .home-logo svg {
     display: block;
-    width: 128px;
+    width: 164px;
     height: 42px;
   }
   .home-logo:active {
     opacity: 0.65;
+  }
+  .search-panel.mobile-open .emoji-finder-waves {
+    animation-play-state: paused;
   }
   .search-panel.mobile-open .home-logo {
     opacity: 0;
@@ -572,7 +575,7 @@ main,
   }
   .mobile-query {
     position: absolute;
-    left: 140px;
+    left: 176px;
     top: 0;
     right: 64px;
     display: block;
