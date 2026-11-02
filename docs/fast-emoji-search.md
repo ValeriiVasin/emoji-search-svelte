@@ -74,3 +74,5 @@ Use a single inline SVG asset with a warm yellow hand and bold lettering filled 
 ### Readable animated wordmark
 
 The compact handmade e closed up at its display size. Replace the shorthand with “emoji finder” in bold system lettering inside the SVG mask, using no downloaded font. Keep the toolbar height and home-link reset behavior. A 164px mark and a query-only edit control fit beside the launcher at 320px. Animate only the repeating color-wave group with a slow CSS translation; the letter shapes stay still. Disable motion for the system reduced-motion preference and pause it while search covers the logo. No canvas, animation package or JavaScript frame loop. Extend the existing home-mark check for narrow geometry and motion preferences; these catch a covered query control or unwanted decorative motion.
+
+The initial wordmark uses the available space beside search, with lettering almost twice the previous display size. It scales down on 320px screens; a saved query retains the compact mark and its own visible edit control. Toolbar height stays 52px.

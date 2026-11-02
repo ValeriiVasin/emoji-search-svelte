@@ -291,7 +291,11 @@
   <main>
     <h1 class="sr-only">Emoji Search</h1>
     <section class="browser" aria-label="Emoji search">
-      <div class="search-panel" class:mobile-open={mobileSearchOpen}>
+      <div
+        class="search-panel"
+        class:mobile-open={mobileSearchOpen}
+        class:has-query={Boolean(query)}
+      >
         <a
           class="home-logo"
           href="/"
