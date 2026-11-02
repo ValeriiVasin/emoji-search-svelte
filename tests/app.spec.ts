@@ -538,3 +538,61 @@ test('enables mobile actions only after hydration connects their handlers', asyn
     await context.close();
   }
 });
+
+test('mobile home mark resets filters and scroll without opening the keyboard', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 320, height: 600 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  const page = await context.newPage();
+  const params = new URLSearchParams({
+    q: 'face',
+    group: 'Smileys & Emotion',
+    browse: '1',
+    at: '12',
+  });
+  await page.goto(`/?${params}`);
+  const home = page.getByRole('link', { name: 'emo — show all emoji' });
+  const edit = page.getByRole('button', { name: 'Edit search: face' });
+  await expect(home).toBeVisible();
+  await expect(edit).toBeVisible();
+  const homeBox = await home.boundingBox();
+  const editBox = await edit.boundingBox();
+  const launcherBox = await page
+    .getByRole('button', { name: 'Open search' })
+    .boundingBox();
+  expect(homeBox.x + homeBox.width).toBeLessThanOrEqual(editBox.x);
+  expect(editBox.x + editBox.width).toBeLessThanOrEqual(launcherBox.x);
+  await expect(home).toHaveAttribute('href', '/');
+  await expect
+    .poll(() => page.locator('.results').evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(0);
+  await home.tap();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(
+    page.getByRole('navigation', { name: 'Emoji categories' }),
+  ).toHaveCount(0);
+  await expect(page.getByRole('searchbox')).toHaveCount(0);
+  await expect
+    .poll(() => page.locator('.results').evaluate((el) => el.scrollTop))
+    .toBe(0);
+  await expect(edit).toHaveCount(0);
+  await page.goBack();
+  await expect(edit).toBeVisible();
+  expect(new URL(page.url()).searchParams.get('group')).toBe(
+    'Smileys & Emotion',
+  );
+  await expect
+    .poll(() => page.locator('.results').evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Open search' }).tap();
+  await expect(page.getByRole('searchbox')).toBeFocused();
+  await expect(home).toHaveCount(0);
+  await page.getByRole('button', { name: 'Close search' }).tap();
+  await expect(home).toBeVisible();
+  await expect(edit).toBeVisible();
+  await context.close();
+});

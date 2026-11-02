@@ -3,6 +3,7 @@
   import { browser } from '$app/env';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import logo from '#lib/assets/emo-logo.svg?raw';
   import initial from '#lib/data/initial.json';
   import { filterEmojis, normalizeQuery } from '#lib/emoji.js';
 
@@ -96,6 +97,20 @@
       scrollTop = resultsRef.scrollTop;
     });
   });
+
+  function resetView(event) {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    clearTimeout(scrollTimer);
+    resultsRef.scrollTop = 0;
+    scrollTop = 0;
+  }
 
   function href(
     nextGroup = group,
@@ -277,6 +292,15 @@
     <h1 class="sr-only">Emoji Search</h1>
     <section class="browser" aria-label="Emoji search">
       <div class="search-panel" class:mobile-open={mobileSearchOpen}>
+        <a
+          class="home-logo"
+          href="/"
+          aria-label="emo — show all emoji"
+          title="Reset search and categories"
+          aria-hidden={mobileSearchOpen}
+          tabindex={mobileSearchOpen ? -1 : 0}
+          onclick={resetView}>{@html logo}</a
+        >
         {#if query && !mobileSearchOpen}
           <button
             type="button"

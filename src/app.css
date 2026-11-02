@@ -463,6 +463,7 @@ main,
 }
 
 /* Search stays in the top toolbar on both desktop and mobile. */
+.home-logo,
 .search-launcher,
 .close-search,
 .mobile-query {
@@ -482,6 +483,29 @@ main,
     padding: 0;
     margin: 12px 0 0;
     background: transparent;
+  }
+  .home-logo {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    display: flex;
+    align-items: center;
+    width: 128px;
+    height: 44px;
+    color: var(--ink);
+    border-radius: 10px;
+  }
+  .home-logo svg {
+    display: block;
+    width: 128px;
+    height: 42px;
+  }
+  .home-logo:active {
+    opacity: 0.65;
+  }
+  .search-panel.mobile-open .home-logo {
+    opacity: 0;
+    pointer-events: none;
   }
   .search-panel .search-wrap {
     position: absolute;
@@ -548,7 +572,7 @@ main,
   }
   .mobile-query {
     position: absolute;
-    left: 0;
+    left: 140px;
     top: 0;
     right: 64px;
     display: block;
@@ -557,7 +581,7 @@ main,
     border: 0;
     background: transparent;
     text-align: left;
-    font-size: 15px;
+    font-size: 14px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -576,6 +600,9 @@ main,
 }
 @media (max-width: 600px) and (prefers-reduced-motion: no-preference),
   (hover: none) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+  .home-logo {
+    transition: opacity 120ms ease;
+  }
   .search-panel.mobile-open .search-wrap {
     animation: search-reveal 160ms ease-out;
   }
