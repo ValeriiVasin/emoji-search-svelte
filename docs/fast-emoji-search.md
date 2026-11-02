@@ -66,15 +66,10 @@ Production startup: keep JavaScript-only launcher/copy actions disabled until hy
 
 ## Compact mobile identity
 
-Problem: the collapsed mobile search toolbar leaves an empty area above the collection. The user requested the earlier peace-hand motif as a small SVG home mark. Keep the existing 52px toolbar and all result space; the logo disappears underneath expanded search, without moving content. The query stays inside the collapsed search field; do not duplicate it beside the wordmark. Clicking the real home link clears search/category/browse/scroll URL state, returns the collection to the top and leaves the mobile keyboard closed. Back restores the previous context.
+Problem: the collapsed mobile toolbar has space for a compact identity; the initial handmade e closed up and resembled o. The final user-approved wordmark is “emo.” in large, readable bold system lettering, aligned left, with no hand or decorative icon. Keep the existing 52px toolbar, result space and real home link: clicking clears search/category/browse/scroll URL state, returns the collection to the top and leaves the mobile keyboard closed. Back restores the previous context.
 
-Use a single inline SVG asset with bold lettering filled with sunset-to-sea waves, as requested in the user’s visual reference. Omit the sparkle that read as a plus sign. Keep the mark readable in both system themes. No hero, slogan, external font, image request or dependency. Verify reset/navigation and narrow-screen geometry using the existing production test setup; SVG paths themselves need no separate tests.
+Use a single inline SVG with sunset-to-sea waves inside stationary letters. Slowly translate only the repeating wave group with CSS. Disable motion for reduced motion and pause it while expanded search covers the logo. No hero, external font, image request, dependency, canvas or JavaScript frame loop.
 
+Closing search keeps the query inside the field and URL, indicated by the launcher dot; do not duplicate the query beside the mark or resize the logo. The existing mobile checks cover left alignment, no overlap at 320px, navigation/reset, retained input text, reduced motion and pausing hidden animation. Visual checks cover both themes at 320 and 390px.
 
-### Readable animated wordmark
-
-The compact handmade e closed up at its display size. Replace the shorthand with “find your emoji” in bold system lettering inside the SVG mask, using no downloaded font. Keep the toolbar height and home-link reset behavior. The centered mark uses the space beside the launcher at 320px, whether or not a query is active. Animate only the repeating color-wave group with a slow CSS translation; the letter shapes stay still. Disable motion for the system reduced-motion preference and pause it while search covers the logo. No canvas, animation package or JavaScript frame loop. Extend the existing home-mark check for narrow geometry and motion preferences; these catch a covered query control or unwanted decorative motion.
-
-The initial wordmark uses the available space beside search, with lettering almost twice the previous display size. It scales down on 320px screens; a saved query does not shrink or reposition the mark. Toolbar height stays 52px.
-
-The user-facing phrase is “find your emoji”, centered on the entire toolbar, without an icon. Reserve equal space on each side so the search button does not shift the visual center; narrow screens scale the lettering to keep it clear of the button.
+Size check against main 161039a: the inline SVG is 1,715 bytes raw / 676 bytes gzip. Comparing local production output adds approximately 1,583 gzip bytes in total: HTML +643, CSS +34, client JavaScript +906. The unchanged deferred catalog and source maps are excluded. These are compressed-file estimates, not measured hosting transfer sizes. Keep the mark inline for immediate display without an extra request.

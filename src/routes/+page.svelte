@@ -295,7 +295,7 @@
         <a
           class="home-logo"
           href="/"
-          aria-label="Find your emoji — show all emoji"
+          aria-label="emo — show all emoji"
           title="Reset search and categories"
           aria-hidden={mobileSearchOpen}
           tabindex={mobileSearchOpen ? -1 : 0}

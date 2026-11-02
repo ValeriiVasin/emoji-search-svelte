@@ -554,7 +554,7 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
   });
   await page.goto(`/?${params}`);
   const home = page.getByRole('link', {
-    name: 'Find your emoji — show all emoji',
+    name: 'emo — show all emoji',
   });
   await expect(home).toBeVisible();
   const homeBox = await home.boundingBox();
@@ -563,9 +563,7 @@ test('mobile home mark resets filters and scroll without opening the keyboard', 
     .boundingBox();
   expect(homeBox.x + homeBox.width).toBeLessThanOrEqual(launcherBox.x);
   const panelBox = await page.locator('.search-panel').boundingBox();
-  expect(
-    Math.abs(homeBox.x + homeBox.width / 2 - (panelBox.x + panelBox.width / 2)),
-  ).toBeLessThan(1);
+  expect(Math.abs(homeBox.x - panelBox.x)).toBeLessThan(1);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   const waves = page.locator('.emoji-finder-waves');
   const firstTransform = await waves.evaluate(
